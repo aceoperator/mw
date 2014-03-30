@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:oxm="http://www.springframework.org/schema/oxm"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+       http://www.springframework.org/schema/oxm http://www.springframework.org/schema/oxm/spring-oxm-3.0.xsd">
+
+	<oxm:jaxb2-marshaller id="marshaller">
+		<oxm:class-to-be-bound
+			name="com.quikj.mw.activiti.value.ProcessAttributes" />
+	</oxm:jaxb2-marshaller>
+
+	<bean id="mwProperties"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:mw.properties</value>
+				<value>file:${user.home}/.mw/activiti/config/mw.properties</value>
+			</list>
+		</property>				
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+	</bean>
+
+	<bean id="mwClient" class="com.quikj.mw.activiti.rest.bean.MiddlewareClientImpl"
+		init-method="init">
+		<property name="mwServiceUrl" value="${com.quikj.mw.activiti.rest.url}" />
+		<property name="mwUser" value="${com.quikj.mw.activiti.rest.user}" />
+		<property name="mwPassword" value="${com.quikj.mw.activiti.rest.password}" />
+		<property name="mwHost" value="${com.quikj.mw.activiti.rest.host}" />
+		<property name="mwPort" value="${com.quikj.mw.activiti.rest.port}" />
+	</bean>
+	
+	<bean id="mwBridge" class="com.quikj.mw.activiti.bridge.MiddlewareBridge">
+		<property name="mwClient" ref="mwClient" />
+	</bean>
+
+</beans>

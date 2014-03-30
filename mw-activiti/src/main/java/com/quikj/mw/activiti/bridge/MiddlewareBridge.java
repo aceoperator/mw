@@ -21,7 +21,7 @@ public class MiddlewareBridge {
 
 	private MiddlewareClient mwClient;
 
-	public void setMiddlewareClient(MiddlewareClient mwClient) {
+	public void setMwClient(MiddlewareClient mwClient) {
 		this.mwClient = mwClient;
 	}
 

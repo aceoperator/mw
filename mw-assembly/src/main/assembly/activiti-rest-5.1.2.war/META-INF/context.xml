@@ -1,0 +1,4 @@
+<Context path="/activiti-rest">
+  <Valve className="org.apache.catalina.valves.RemoteAddrValve"
+         allow="127.0.0.1"/>
+</Context>
