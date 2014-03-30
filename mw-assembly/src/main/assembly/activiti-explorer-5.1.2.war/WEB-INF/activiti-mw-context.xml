@@ -16,7 +16,7 @@
 		<property name="locations">
 			<list>
 				<value>classpath:mw.properties</value>
-				<value>file:${user.home}/.mw/activiti/config/mw.properties</value>
+				<value>file:${user.home}/.mw/conf/properties/mw.properties</value>
 			</list>
 		</property>				
 		<property name="ignoreUnresolvablePlaceholders" value="true" />

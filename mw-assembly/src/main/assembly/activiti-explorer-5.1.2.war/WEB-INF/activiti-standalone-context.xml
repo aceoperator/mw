@@ -25,20 +25,20 @@
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="locations">
 			<list>
-				<value>file:${user.home}/.mw/activiti/config/db.properties</value>
-				<value>file:${user.home}/.mw/activiti/config/mail.properties</value>
+				<value>classpath:mw.properties</value>
+				<value>file:${user.home}/.mw/conf/properties/mw.properties</value>
 			</list>
 		</property>
 
 		<property name="ignoreUnresolvablePlaceholders" value="true" />
 	</bean>
 
-	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
-		<property name="driverClassName" value="${jdbc.driver}" />
-		<property name="url" value="${jdbc.url}" />
-		<property name="username" value="${jdbc.username}" />
-		<property name="password" value="${jdbc.password}" />
-		<property name="defaultAutoCommit" value="false" />
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+		<property name="driverClass" value="${com.quikj.mw.core.jdbcDriverClassName}" />
+		<property name="url" value="${com.quikj.mw.core.jdbcUrl}" />
+		<property name="username" value="${com.quikj.mw.core.jdbcUsername}" />
+		<property name="password" value="${com.quikj.mw.core.jdbcPassword}" />
 	</bean>
 
 	<bean id="transactionManager"
@@ -59,12 +59,13 @@
 				<bean class="com.quikj.mw.activiti.form.TextAreaFormType" />
 			</list>
 		</property>
-		<property name="mailServerDefaultFrom" value="${org.activiti.mailServerDefaultFrom}" />
-		<property name="mailServerHost" value="${org.activiti.mailServerHost}" />
-		<property name="mailServerPort" value="${org.activiti.mailServerPort}" />
-		<property name="mailServerUseSSL" value="${org.activiti.mailServerUseSSL}" />
-		<property name="mailServerUsername" value="${org.activiti.mailServerUsername}" />
-		<property name="mailServerPassword" value="${org.activiti.mailServerPassword}" />		
+		
+		<property name="mailServerDefaultFrom" value="${com.quikj.mw.core.smtpFrom}" />
+		<property name="mailServerHost" value="${com.quikj.mw.core.smtpHost}" />
+		<property name="mailServerPort" value="${com.quikj.mw.core.smtpPort}" />
+		<property name="mailServerUseSSL" value="${com.quikj.mw.core.smtpStartTls}" />
+		<property name="mailServerUsername" value="${com.quikj.mw.core.smtpUser}" />
+		<property name="mailServerPassword" value="${com.quikj.mw.core.smtpPassword}" />		
 	</bean>
 	
 	<bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean"

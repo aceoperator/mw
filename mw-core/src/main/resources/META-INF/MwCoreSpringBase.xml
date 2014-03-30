@@ -165,5 +165,15 @@
         <property name="configurationFileLocation"
             value="classpath:/META-INF/infinispan.xml" />
  	</bean>
+ 	
+ 	<bean class="org.mybatis.spring.mapper.MapperFactoryBean" id="clientDao">
+		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="mapperInterface" value="com.quikj.mw.core.dao.ClientDao" />
+	</bean>
+			
+	<bean id ="clientBean" class="com.quikj.mw.core.business.bean.ClientBeanImpl">
+		<property name="clientDao" ref="clientDao" />
+	</bean>	
 	
 </beans>
