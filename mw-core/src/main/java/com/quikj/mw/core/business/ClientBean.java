@@ -17,7 +17,7 @@ import com.quikj.mw.core.value.Domain;
  */
 public interface ClientBean {
 	
-	public static final String DEFAULT_DOMAIN = "default";
+	public static final String DEFAULT_DOMAIN = "DEFAULT";
 
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	Authentication authenticate(String userId, String domain, String password);
