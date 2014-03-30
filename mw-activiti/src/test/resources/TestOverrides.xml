@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mockito="http://www.mockito.org/spring/mockito"
+	
+	xsi:schemaLocation="
+		http://www.mockito.org/spring/mockito https://bitbucket.org/kubek2k/springockito/raw/tip/springockito/src/main/resources/spring/mockito.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="workflowBean" class="com.quikj.mw.activiti.rest.bean.WorkflowBeanImpl">
+		<property name="workflowEngineUrl" value="http://localhost:8080/activiti-rest" />
+		<property name="workflowEngineUser" value="admin" />
+		<property name="workflowEnginePassword" value="durhamnc" />
+	</bean>	
+</beans>

@@ -1,0 +1,12 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	xmlns="http://www.quikj.com/mw/core/value" 
+	targetNamespace="http://www.quikj.com/mw/core/value" elementFormDefault="qualified">
+	
+	<xs:element name="Success" type="Success"/>
+	
+	<xs:complexType name="Success">
+		<xs:sequence>
+			<xs:element name="AdditionalInformation" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

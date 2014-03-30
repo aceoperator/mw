@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camel="http://camel.apache.org/schema/spring"
+
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://camel.apache.org/schema/spring 
+	 		http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="workflowBean" class="com.quikj.mw.activiti.rest.bean.WorkflowBeanImpl">
+		<property name="workflowEngineUrl"
+			value="${com.quikj.mw.service.workflowEngineUrl}" />
+		<property name="workflowEngineUser"
+			value="${com.quikj.mw.service.workflowEngineUser}" />
+		<property name="workflowEnginePassword"
+			value="${com.quikj.mw.service.workflowEnginePassword}" />
+	</bean>
+
+	<bean id="bridgeDispatcher" class="com.quikj.mw.service.framework.BridgeDispatcher" />
+
+	<camel:camelContext id="mwCamelContext">
+		<camel:propertyPlaceholder id="integrationProperties"
+			location="file:${user.home}/.mw/conf/properties/mw.properties" />
+
+		<!-- Load external routes -->
+		<camel:routeContextRef ref="externalRoutes" />
+
+		<camel:onException>
+			<camel:exception>org.springframework.dao.RecoverableDataAccessException</camel:exception>
+			<camel:redeliveryPolicy redeliveryDelay="600000"
+				maximumRedeliveries="3" />
+			<camel:log message="Error processing route" />
+		</camel:onException>
+
+	</camel:camelContext>
+</beans>

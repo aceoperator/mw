@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:task="http://www.springframework.org/schema/task"
+
+	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd">
+
+	<bean
+		class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor" />
+
+	<bean id="properties"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="ignoreResourceNotFound" value="true" />
+		<property name="ignoreUnresolvablePlaceholders" value="false" />
+		<property name="locations">
+			<list>
+				<value>classpath:META-INF/mw.properties</value>
+				<value>file:${user.home}/.mw/conf/properties/*.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="logInitialization"
+		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetClass" value="org.springframework.util.Log4jConfigurer" />
+		<property name="targetMethod" value="initLogging" />
+		<property name="arguments">
+			<list>
+				<value>${com.quikj.mw.core.logConfigFile}</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="${com.quikj.mw.core.jdbcDriverClassName}" />
+		<property name="url" value="${com.quikj.mw.core.jdbcUrl}" />
+		<property name="username" value="${com.quikj.mw.core.jdbcUsername}" />
+		<property name="password" value="${com.quikj.mw.core.jdbcPassword}" />
+		<property name="initialSize" value="${com.quikj.mw.core.jdbcPoolInitialSize}" />
+		<property name="maxActive" value="${com.quikj.mw.core.jdbcPoolMaxActive}" />
+		<property name="maxWait" value="90000" />
+		<property name="testOnBorrow" value="true" />
+		<property name="validationQuery" value="select 1" />
+	</bean>
+
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="configLocation" value="classpath:META-INF/MwCoreMybatisConfig.xml" />
+		<property name="mapperLocations" value="classpath*:mapping/*.xml" />
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<bean class="org.mybatis.spring.SqlSessionTemplate" id="sqlSessionTemplate">
+		<constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory" />
+	</bean>
+
+	<bean id="exporter" class="org.springframework.jmx.export.MBeanExporter">
+		<property name="assembler" ref="assembler" />
+		<property name="namingStrategy" ref="namingStrategy" />
+		<property name="autodetect" value="true" />
+	</bean>
+
+	<bean id="jmxAttributeSource"
+		class="org.springframework.jmx.export.annotation.AnnotationJmxAttributeSource" />
+
+	<bean id="assembler"
+		class="org.springframework.jmx.export.assembler.MetadataMBeanInfoAssembler">
+		<property name="attributeSource" ref="jmxAttributeSource" />
+	</bean>
+
+	<bean id="namingStrategy"
+		class="org.springframework.jmx.export.naming.MetadataNamingStrategy">
+		<property name="attributeSource" ref="jmxAttributeSource" />
+	</bean>
+
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="${com.quikj.mw.core.smtpHost}" />
+		<property name="username" value="${com.quikj.mw.core.smtpUser}" />
+		<property name="password" value="${com.quikj.mw.core.smtpPassword}" />
+
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.smtp.debug">${com.quikj.mw.core.smtpHost}
+				</prop>
+				<prop key="mail.smtp.host">${com.quikj.mw.core.smtpDebug}
+				</prop>
+				<prop key="mail.smtp.port">${com.quikj.mw.core.smtpPort}
+				</prop>
+				<prop key="mail.from">${com.quikj.mw.core.smtpFrom}
+				</prop>
+				<prop key="mail.smtp.auth">${com.quikj.mw.core.smtpAuth}
+				</prop>
+
+				<!-- TLS-related properties -->
+				<prop key="mail.smtp.starttls.enable">${com.quikj.mw.core.smtpStartTls}
+				</prop>
+				<prop key="mail.smtp.socketFactory.class">${com.quikj.mw.core.smtpSocketFactoryClass}
+				</prop>
+				<prop key="mail.smtp.socketFactory.fallback">${com.quikj.mw.core.smtpSocketFactoryFallback}
+				</prop>
+				<prop key="mail.smtp.socketFactory.port">${com.quikj.mw.core.smtpPort}
+				</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="velocityEngine"
+		class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
+		<property name="velocityProperties">
+			<value>
+				resource.loader=class
+				class.resource.loader.class=org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+			</value>
+		</property>
+	</bean>
+
+	<bean id="velocityEngineFactory"
+		class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
+		<property name="velocityProperties">
+			<props>
+				<prop key="resource.loader">file</prop>
+				<prop key="file.resource.loader.class">org.apache.velocity.runtime.resource.loader.FileResourceLoader
+				</prop>
+				<prop key="file.resource.loader.path">${user.home}/.mw/velocity</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="mailBean" class="com.quikj.mw.core.business.bean.MailBeanImpl">
+		<property name="mailSender" ref="mailSender" />
+		<property name="defaultFromEmail" value="${com.quikj.mw.core.smtpFrom}" />
+		<property name="velocity" ref="velocityEngineFactory" />
+	</bean>
+
+	<bean id="reportGeneratorBean"
+		class="com.quikj.mw.core.business.bean.ReportGeneratorBeanJasperImpl">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<bean id="solrServer" class="org.apache.solr.client.solrj.impl.CommonsHttpSolrServer">
+		<constructor-arg index="0" value="http://localhost:8080/solr" />
+	</bean>
+
+	<bean id="scriptingBean"
+		class="com.quikj.mw.core.business.bean.ScriptingBeanGroovyImpl">
+		<property name="groovyShell">
+			<bean class="groovy.lang.GroovyShell" />
+		</property>
+	</bean>
+	
+	<bean id="cacheManager"
+        class="org.infinispan.spring.provider.SpringEmbeddedCacheManagerFactoryBean">
+        <property name="configurationFileLocation"
+            value="classpath:/META-INF/infinispan.xml" />
+ 	</bean>
+	
+</beans>

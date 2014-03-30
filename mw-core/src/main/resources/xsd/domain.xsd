@@ -1,0 +1,19 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	xmlns="http://www.quikj.com/mw/core/value"
+	targetNamespace="http://www.quikj.com/mw/core/value" 
+	elementFormDefault="qualified">
+
+	<xs:include schemaLocation="role.xsd" />
+
+	<xs:element name="Domain" type="Domain"/>
+	
+	<xs:complexType name="Domain">
+		<xs:sequence>
+			<xs:element name="Id" type="xs:long" />
+			<xs:element name="Name" type="xs:string" />
+			<xs:element name="Url" type="xs:string" minOccurs="0" />
+			
+			<xs:element name="Role" type="Role" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

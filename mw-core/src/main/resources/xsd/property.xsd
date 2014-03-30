@@ -1,0 +1,15 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	xmlns="http://www.quikj.com/mw/core/value"
+	targetNamespace="http://www.quikj.com/mw/core/value" 
+	elementFormDefault="qualified">
+
+	<xs:element name="Property" type="Property"/>
+	
+	<xs:complexType name="Property">
+		<xs:sequence>
+			<xs:element name="Id" type="xs:string" />
+			<xs:element name="Key" type="xs:string" />
+			<xs:element name="Value" type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

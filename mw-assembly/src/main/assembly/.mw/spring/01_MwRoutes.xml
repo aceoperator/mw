@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camel="http://camel.apache.org/schema/spring"
+
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://camel.apache.org/schema/spring 
+	 		http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<camel:routeContext id="externalRoutes">
+		<!-- This route is needed as Camel does not allow an empty route. Remove 
+			it once a real external route is in place -->
+		<camel:route id="dummyRoute">
+			<camel:from uri="direct:dummy" />
+			<camel:log message="dummy route" />
+		</camel:route>
+	</camel:routeContext>
+
+</beans>

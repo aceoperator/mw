@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="myFirstProcess" name="My First Process" isExecutable="true">
+    <startEvent id="sid-29158E93-18E2-4AF9-85B1-9B90482B9CE3"></startEvent>
+    <userTask id="Approve_Work" name="Approve" activiti:assignee="admin" activiti:formKey="aproval_form">
+      <extensionElements>
+        <activiti:formProperty id="approver_name" name="Name" type="string"></activiti:formProperty>
+      </extensionElements>
+    </userTask>
+    <endEvent id="sid-20BFFF7D-6019-49B6-947F-9891F9E55EC3"></endEvent>
+    <serviceTask id="doSomething" name="Do Something" activiti:async="true" activiti:expression="#{mwBridge.execute(execution, &quot;testMethod&quot;)}"></serviceTask>
+    <receiveTask id="someSignal" name="Wait for Signal" activiti:async="true"></receiveTask>
+    <sequenceFlow id="sid-A181FBC5-1F6E-4FFE-BE81-A52EBB939B62" sourceRef="someSignal" targetRef="doSomething"></sequenceFlow>
+    <sequenceFlow id="sid-448DF488-CAF6-456F-A07A-E2D7BE6A0D9F" sourceRef="sid-29158E93-18E2-4AF9-85B1-9B90482B9CE3" targetRef="someSignal"></sequenceFlow>
+    <sequenceFlow id="sid-57B53897-7776-49F1-AB29-D3957CF0A818" sourceRef="doSomething" targetRef="Approve_Work"></sequenceFlow>
+    <sequenceFlow id="sid-43F9816F-FCEF-44C7-9228-081794D86A56" sourceRef="Approve_Work" targetRef="sid-20BFFF7D-6019-49B6-947F-9891F9E55EC3"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_myFirstProcess">
+    <bpmndi:BPMNPlane bpmnElement="myFirstProcess" id="BPMNPlane_myFirstProcess">
+      <bpmndi:BPMNShape bpmnElement="sid-29158E93-18E2-4AF9-85B1-9B90482B9CE3" id="BPMNShape_sid-29158E93-18E2-4AF9-85B1-9B90482B9CE3">
+        <omgdc:Bounds height="30.0" width="30.0" x="30.0" y="115.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="Approve_Work" id="BPMNShape_Approve_Work">
+        <omgdc:Bounds height="80.0" width="100.0" x="345.0" y="225.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-20BFFF7D-6019-49B6-947F-9891F9E55EC3" id="BPMNShape_sid-20BFFF7D-6019-49B6-947F-9891F9E55EC3">
+        <omgdc:Bounds height="28.0" width="28.0" x="381.0" y="345.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="doSomething" id="BPMNShape_doSomething">
+        <omgdc:Bounds height="80.0" width="100.0" x="345.0" y="90.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="someSignal" id="BPMNShape_someSignal">
+        <omgdc:Bounds height="80.0" width="100.0" x="150.0" y="90.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sid-43F9816F-FCEF-44C7-9228-081794D86A56" id="BPMNEdge_sid-43F9816F-FCEF-44C7-9228-081794D86A56">
+        <omgdi:waypoint x="395.0" y="305.0"></omgdi:waypoint>
+        <omgdi:waypoint x="395.0" y="345.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-448DF488-CAF6-456F-A07A-E2D7BE6A0D9F" id="BPMNEdge_sid-448DF488-CAF6-456F-A07A-E2D7BE6A0D9F">
+        <omgdi:waypoint x="60.0" y="130.0"></omgdi:waypoint>
+        <omgdi:waypoint x="150.0" y="130.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-57B53897-7776-49F1-AB29-D3957CF0A818" id="BPMNEdge_sid-57B53897-7776-49F1-AB29-D3957CF0A818">
+        <omgdi:waypoint x="395.0" y="170.0"></omgdi:waypoint>
+        <omgdi:waypoint x="395.0" y="225.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-A181FBC5-1F6E-4FFE-BE81-A52EBB939B62" id="BPMNEdge_sid-A181FBC5-1F6E-4FFE-BE81-A52EBB939B62">
+        <omgdi:waypoint x="250.0" y="130.0"></omgdi:waypoint>
+        <omgdi:waypoint x="345.0" y="130.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

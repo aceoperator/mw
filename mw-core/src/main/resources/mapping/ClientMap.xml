@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.quikj.mw.core.dao.ClientDao">
+	<resultMap type="com.quikj.mw.core.value.Authentication" id="authenticationResult" />
+	<resultMap type="com.quikj.mw.core.value.Client" id="clientResult" />
+	<resultMap type="com.quikj.mw.core.value.Domain" id="domainResult" />
+	<resultMap type="com.quikj.mw.core.value.Role" id="roleResult" />	
+
+	<parameterMap type="com.quikj.mw.core.value.Client" id="clientParam" />
+	<parameterMap type="com.quikj.mw.core.dao.value.ClientDomainMap"
+		id="clientDomainParam" />
+	<parameterMap type="com.quikj.mw.core.dao.value.ClientDomainRoleMap"
+		id="clientDomainRoleParam" />
+	<parameterMap type="com.quikj.mw.core.value.Domain" id="domainParam" />
+
+	<select id="authenticate" statementType="PREPARED" resultMap="authenticationResult">
+		SELECT c.ID AS id,
+		d.ID AS domainId
+		FROM MWC_CLIENT c,
+		MWC_CLIENT_DOMAIN_MAP m, MWC_DOMAIN d
+		WHERE c.ID = m.CLIENT_ID AND d.ID
+		= m.DOMAIN_ID
+		AND c.USERID = #{userId} AND c.PASSWORD =
+		PASSWORD(#{password}) AND
+		d.NAME = #{domain}
+	</select>
+
+	<select id="listRoles" statementType="PREPARED" resultType="string">
+		SELECT r.NAME
+		FROM MWC_CLIENT_DOMAIN_MAP cdm, MWC_CLIENT_DOMAIN_ROLE_MAP cdrm, MWC_ROLE r
+		WHERE cdm.ID = cdrm.CLIENT_DOMAIN_ID AND
+		cdrm.ROLE_ID = r.ID
+		AND cdm.CLIENT_ID = #{clientId} AND cdm.DOMAIN_ID = #{domainId}
+	</select>
+
+	<insert id="createClient" statementType="PREPARED" parameterMap="clientParam"
+		useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO MWC_CLIENT
+		(USERID, PASSWORD, FIRST_NAME, LAST_NAME, EMAIL, ADDITIONAL_INFO, PHONE_1, PHONE_2)
+		VALUES(#{userId}, PASSWORD(#{password}), #{firstName}, #{lastName}, #{email}, #{additionalInfo},
+		#{phone1}, #{phone2})
+	</insert>
+
+	<insert id="createClientDomainMap" statementType="PREPARED"
+		useGeneratedKeys="true" keyProperty="id" parameterMap="clientDomainParam">
+		INSERT INTO
+		MWC_CLIENT_DOMAIN_MAP (CLIENT_ID, DOMAIN_ID)
+		SELECT #{clientId}, ID
+		FROM MWC_DOMAIN
+		WHERE NAME = #{domainName}
+	</insert>
+	
+	<delete id="deleteClient" statementType="PREPARED" >
+		DELETE FROM MWC_CLIENT WHERE ID = #{clientId}
+	</delete>
+	
+	<select id="getClientByUserId" statementType="PREPARED" resultMap="clientResult">
+		SELECT c.ID AS id, c.USERID AS userId, c.FIRST_NAME AS firstName, c.LAST_NAME AS lastName, c.EMAIL AS email, 
+			c.ADDITIONAL_INFO AS additionalInfo, c.PHONE_1 AS phone1, c.PHONE_2 AS phone2
+		FROM MWC_CLIENT c, MWC_CLIENT_DOMAIN_MAP m, MWC_DOMAIN d
+		WHERE c.ID = m.CLIENT_ID
+			AND m.DOMAIN_ID = d.ID
+			AND c.USERID = #{userId}
+			AND d.NAME = #{domainName}
+	</select>
+	
+	<select id="getClientDomains" statementType="PREPARED" resultMap="domainResult">
+		SELECT d.ID AS id, d.NAME AS name,d.URL AS url 
+		FROM MWC_CLIENT c, MWC_CLIENT_DOMAIN_MAP m, MWC_DOMAIN d
+		WHERE c.ID = m.CLIENT_ID
+			AND m.DOMAIN_ID = d.ID
+			AND c.ID = #{clientId}
+	</select>
+	
+	<select id="getClientRoles" statementType="PREPARED" resultMap="roleResult">
+		SELECT r.ID AS id, r.NAME AS name
+		FROM MWC_CLIENT c, MWC_CLIENT_DOMAIN_MAP m, MWC_DOMAIN d, MWC_CLIENT_DOMAIN_ROLE_MAP rm, MWC_ROLE r
+		WHERE c.ID = m.CLIENT_ID
+			AND m.DOMAIN_ID = d.ID
+			AND m.ID = rm.CLIENT_DOMAIN_ID
+			AND rm.ROLE_ID = r.ID
+			AND c.ID = #{clientId}
+			AND d.ID = #{domainId}
+	</select>
+	
+	<update id="updateClient" statementType="PREPARED" parameterMap="clientParam">
+		UPDATE MWC_CLIENT 
+		SET FIRST_NAME = #{firstName}, LAST_NAME = #{lastName}, EMAIL = #{email}, 
+			ADDITIONAL_INFO = #{additionalInfo}, PHONE_1 = #{phone1}, PHONE_2 = #{phone2}
+		WHERE ID = #{id}
+	</update>
+	
+	<select id="getClientById" statementType="PREPARED" resultMap="clientResult">
+		SELECT c.ID AS id, c.USERID AS userId, c.FIRST_NAME AS firstName, c.LAST_NAME AS lastName, c.EMAIL AS email, 
+			c.ADDITIONAL_INFO AS additionalInfo, c.PHONE_1 AS phone1, c.PHONE_2 AS phone2
+		FROM MWC_CLIENT c
+		WHERE c.ID = #{clientId}
+	</select>
+	
+	<delete id="deleteClientDomainMap" statementType="PREPARED">
+		DELETE FROM m.*
+		USING MWC_CLIENT_DOMAIN_MAP m, MWC_DOMAIN d
+		WHERE m.DOMAIN_ID = d.ID
+			AND m.CLIENT_ID = #{clientId}
+			AND d.NAME = #{domainName}
+	</delete>
+	
+	<insert id="createClientDomainRoleMap" statementType="PREPARED">
+		INSERT INTO MWC_CLIENT_DOMAIN_ROLE_MAP (CLIENT_DOMAIN_ID, ROLE_ID)
+		SELECT #{clientDomainId}, ID
+		FROM MWC_ROLE WHERE NAME = #{roleName}
+	</insert>
+	
+	<insert id="createClientDomainRoleMap2" statementType="PREPARED">
+		INSERT INTO MWC_CLIENT_DOMAIN_ROLE_MAP (CLIENT_DOMAIN_ID, ROLE_ID)
+		SELECT ID, (SELECT ID FROM MWC_ROLE WHERE NAME = #{roleName})
+		FROM MWC_CLIENT_DOMAIN_MAP m
+		WHERE m.CLIENT_ID = #{clientId}
+			AND m.DOMAIN_ID = #{domainId}
+	</insert>
+	
+	<delete id="deleteClientDomainRoleMap" statementType="PREPARED">
+		DELETE FROM rm.*
+		USING MWC_CLIENT_DOMAIN_MAP m, MWC_CLIENT_DOMAIN_ROLE_MAP rm, MWC_ROLE r
+		WHERE m.ID = rm.CLIENT_DOMAIN_ID
+			AND rm.ROLE_ID = r.ID
+			AND r.NAME = #{roleName}
+			AND m.CLIENT_ID = #{clientId}
+			AND m.DOMAIN_ID = #{domainId}
+	</delete>
+	
+	<insert id="createDomain" statementType="PREPARED" parameterMap="domainParam">
+		INSERT INTO MWC_DOMAIN (NAME, URL)
+		VALUES (#{name}, #{url})
+	</insert>
+	
+	<delete id="deleteDomain" statementType="PREPARED">
+		DELETE FROM MWC_DOMAIN
+		WHERE ID = #{domainId}
+	</delete>
+	
+	<update id="updateDomain" statementType="PREPARED" parameterMap="domainParam">
+		UPDATE MWC_DOMAIN
+		SET NAME = #{name}, URL = #{url}
+		WHERE ID = #{id}
+	</update>
+	
+	<select id="getDomainByName" statementType="PREPARED" resultMap="domainResult">
+		SELECT ID AS id, NAME AS name, URL AS url
+		FROM MWC_DOMAIN 
+		WHERE NAME = #{domainName}
+	</select>
+	
+	<update id="changePassword" statementType="PREPARED">
+		UPDATE MWC_CLIENT
+		SET PASSWORD = PASSWORD(#newPassword)
+		WHERE USERID = #{userId} AND PASSWORD = PASSWORD(#{oldPassword})
+	</update>
+
+</mapper>

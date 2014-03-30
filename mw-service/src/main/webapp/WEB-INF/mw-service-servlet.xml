@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:oxm="http://www.springframework.org/schema/oxm"
+
+	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+		http://www.springframework.org/schema/oxm http://www.springframework.org/schema/oxm/spring-oxm-3.0.xsd">
+
+	<bean id="properties"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="ignoreResourceNotFound" value="true" />
+		<property name="ignoreUnresolvablePlaceholders" value="false" />
+		<property name="locations">
+			<list>
+				<value>file:${user.home}/.mw/config/properties/*.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+	<context:component-scan base-package="com.quikj.mw.service.rest.bean" />
+
+	<oxm:jaxb2-marshaller id="xmlMarshaller">
+		<oxm:class-to-be-bound name="com.quikj.mw.core.value.Success" />
+		<oxm:class-to-be-bound name="com.quikj.mw.core.value.Error" />
+	</oxm:jaxb2-marshaller>
+
+	<bean id="webServicesInterceptor"
+		class="com.quikj.mw.service.framework.WebServicesInterceptor" />
+
+	<bean
+		class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+		<property name="cacheSeconds" value="0" />
+		<property name="messageConverters">
+			<list>
+				<ref bean="marshallingHttpMessageConverter" />
+				<ref bean="jsonHttpMessageConverter" />
+				<ref bean="sourceHttpMessageConverter" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="exceptionView" class="com.quikj.mw.service.framework.ServiceExceptionView">
+		<property name="xmlMarshaller" ref="xmlMarshaller" />
+		<property name="jsonMapper" ref="jsonMapper" />
+	</bean>
+
+	<bean id="handlerMapping"
+		class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"
+		p:interceptors-ref="webServicesInterceptor" />
+
+	<bean id="sourceHttpMessageConverter"
+		class="org.springframework.http.converter.xml.SourceHttpMessageConverter" />
+
+	<bean id="marshallingHttpMessageConverter"
+		class="org.springframework.http.converter.xml.MarshallingHttpMessageConverter"
+		p:marshaller-ref="xmlMarshaller" p:unmarshaller-ref="xmlMarshaller"
+		p:supportedMediaTypes="application/xml" />
+
+	<bean id="jsonHttpMessageConverter"
+		class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter"
+		p:supportedMediaTypes="application/json">
+		<property name="objectMapper" ref="jsonMapper" />
+	</bean>
+
+	<bean class="org.springframework.web.servlet.view.BeanNameViewResolver"
+		p:order="1" />
+
+	<bean id="jsonMapper"
+		class="com.quikj.mw.service.framework.JsonJaxbAnnotationMapper" />
+
+	<bean
+		class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver"
+		p:order="3">
+		<property name="mediaTypes">
+			<map>
+				<entry key="xml" value="application/xml" />
+				<entry key="json" value="application/json" />
+			</map>
+		</property>
+		<property name="defaultContentType" value="application/json" />
+
+		<property name="defaultViews">
+			<list>
+				<bean class="org.springframework.web.servlet.view.xml.MarshallingView">
+					<property name="marshaller" ref="xmlMarshaller" />
+				</bean>
+				<bean
+					class="org.springframework.web.servlet.view.json.MappingJacksonJsonView">
+					<property name="objectMapper" ref="jsonMapper" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="serviceExceptionHandler"
+		class="com.quikj.mw.service.framework.ServiceExceptionHandler">
+		<property name="order" value="2" />
+	</bean>
+</beans>

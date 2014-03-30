@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="${com.quikj.mw.core.smtpHost}" />
+		<property name="username" value="${com.quikj.mw.core.smtpUser}" />
+		<property name="password" value="${com.quikj.mw.core.smtpPassword}" />
+
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.smtp.debug">${com.quikj.mw.core.smtpHost}
+				</prop>
+				<prop key="mail.smtp.host">${com.quikj.mw.core.smtpDebug}
+				</prop>
+				<prop key="mail.smtp.port">${com.quikj.mw.core.smtpPort}
+				</prop>
+				<prop key="mail.from">${com.quikj.mw.core.smtpFrom}
+				</prop>
+				<prop key="mail.smtp.auth">${com.quikj.mw.core.smtpAuth}
+				</prop>
+
+				<!-- TLS-related properties -->
+				<prop key="mail.smtp.starttls.enable">${com.quikj.mw.core.smtpStartTls}
+				</prop>
+				<prop key="mail.smtp.socketFactory.class">${com.quikj.mw.core.smtpSocketFactoryClass}
+				</prop>
+				<prop key="mail.smtp.socketFactory.fallback">${com.quikj.mw.core.smtpSocketFactoryFallback}
+				</prop>
+				<prop key="mail.smtp.socketFactory.port">${com.quikj.mw.core.smtpPort}
+				</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<!--  Update this bean with the dispatcher map -->
+	<bean id="bridgeDispatcher" class="com.quikj.mw.service.framework.BridgeDispatcher" />
+
+</beans>

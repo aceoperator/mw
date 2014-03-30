@@ -1,0 +1,31 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	xmlns="http://www.quikj.com/mw/core/value"
+	targetNamespace="http://www.quikj.com/mw/core/value" 
+	elementFormDefault="qualified">
+
+	<xs:include schemaLocation="domain.xsd" />
+	<xs:include schemaLocation="property.xsd" />
+
+	<xs:element name="Client" type="Client"/>
+	
+	<xs:complexType name="Client">
+		<xs:sequence>
+			<xs:element name="Id" type="xs:long" />
+			
+			<xs:element name="UserId" type="xs:string" />
+			<xs:element name="Password" type="xs:string" minOccurs="0" />
+			
+			<xs:element name="FirstName" type="xs:string" />
+			<xs:element name="LastName" type="xs:string" />			
+			<xs:element name="Email" type="xs:string" />
+			<xs:element name="AdditionalInfo" type="xs:string" minOccurs="0" />
+			<xs:element name="Phone1" type="xs:string" minOccurs="0" />
+			<xs:element name="Phone2" type="xs:string" minOccurs="0" />
+			
+			<xs:element name="Domain" type="Domain" maxOccurs="unbounded" />
+			
+			<xs:element name="Property" type="Property" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	
+</xs:schema>
