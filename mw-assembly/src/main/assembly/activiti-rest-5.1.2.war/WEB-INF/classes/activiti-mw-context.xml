@@ -31,7 +31,7 @@
 		<property name="mwPort" value="${com.quikj.mw.activiti.rest.port}" />
 	</bean>
 	
-	<bean id="biBridge" class="com.quikj.mw.activiti.bridge.MiddlewareBridge">
+	<bean id="mwBridge" class="com.quikj.mw.activiti.bridge.MiddlewareBridge">
 		<property name="mwClient" ref="mwClient" />
 	</bean>
 

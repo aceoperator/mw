@@ -36,7 +36,15 @@
 		</property>
 	</bean>
 	
-	<!--  Update this bean with the dispatcher map -->
-	<bean id="bridgeDispatcher" class="com.quikj.mw.service.framework.BridgeDispatcher" />
+	<!--  Update this bean with a proper dispatcher map -->
+	<bean id="bridgeDispatcher" class="com.quikj.mw.service.framework.BridgeDispatcher" >
+		<property name="executors">
+			<map>
+				<entry key="dummy" value-ref="dummyExecutor" />
+			</map>
+		</property>
+	</bean>
+	
+	<bean id="dummyExecutor" class="com.quikj.mw.service.sample.DummyCommandExecutor" />
 
 </beans>

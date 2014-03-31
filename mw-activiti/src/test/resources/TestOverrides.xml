@@ -10,6 +10,6 @@
 	<bean id="workflowBean" class="com.quikj.mw.activiti.rest.bean.WorkflowBeanImpl">
 		<property name="workflowEngineUrl" value="http://localhost:8080/activiti-rest" />
 		<property name="workflowEngineUser" value="admin" />
-		<property name="workflowEnginePassword" value="durhamnc" />
+		<property name="workflowEnginePassword" value="a1b2c3d4" />
 	</bean>	
 </beans>
