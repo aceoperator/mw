@@ -10,7 +10,7 @@
 	<parent>
 		<artifactId>mw</artifactId>
 		<groupId>com.quikj</groupId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>1.0.0b</version>
 	</parent>
 
 	<dependencies>
