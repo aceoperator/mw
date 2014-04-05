@@ -6,6 +6,8 @@ package com.quikj.mw.service.sample;
 
 import java.util.Properties;
 
+import org.apache.commons.logging.LogFactory;
+
 import com.quikj.mw.service.framework.CommandExecutor;
 
 /**
@@ -16,8 +18,10 @@ public class DummyCommandExecutor implements CommandExecutor {
 
 	@Override
 	public Properties execute(Properties properties) {
-		properties.put("dummyString", "dummy");
-		return properties;
+		LogFactory.getLog(getClass()).info("Invoking dummy command executor");
+		
+		Properties outputProperties = new Properties();
+		outputProperties.put("dummyString", "dummy");
+		return outputProperties;
 	}
-
 }

@@ -28,6 +28,7 @@
 		<oxm:class-to-be-bound name="com.quikj.mw.core.value.Authentication" />
 		<oxm:class-to-be-bound name="com.quikj.mw.core.value.Client" />
 		<oxm:class-to-be-bound name="com.quikj.mw.core.value.Domain" />
+		<oxm:class-to-be-bound name="com.quikj.mw.activiti.value.ProcessAttributes" />
 	</oxm:jaxb2-marshaller>
 
 	<bean id="webServicesInterceptor"

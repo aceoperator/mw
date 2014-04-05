@@ -33,7 +33,7 @@ public class MiddlewareClientImpl extends RestTemplate implements MiddlewareClie
 				credentials);
 		HttpComponentsClientHttpRequestFactory reqFactory = new HttpComponentsClientHttpRequestFactory(
 				client);
-		setRequestFactory(reqFactory);
+		setRequestFactory(reqFactory);		
 	}
 
 	@Override

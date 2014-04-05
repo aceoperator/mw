@@ -2,14 +2,30 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:mockito="http://www.mockito.org/spring/mockito"
+	xmlns:oxm="http://www.springframework.org/schema/oxm"
 	
 	xsi:schemaLocation="
 		http://www.mockito.org/spring/mockito https://bitbucket.org/kubek2k/springockito/raw/tip/springockito/src/main/resources/spring/mockito.xsd
-		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/oxm http://www.springframework.org/schema/oxm/spring-oxm-3.0.xsd">
+
+	<oxm:jaxb2-marshaller id="marshaller">
+		<oxm:class-to-be-bound
+			name="com.quikj.mw.activiti.value.ProcessAttributes" />
+	</oxm:jaxb2-marshaller>
 
 	<bean id="workflowBean" class="com.quikj.mw.activiti.rest.bean.WorkflowBeanImpl">
 		<property name="workflowEngineUrl" value="http://localhost:8080/activiti-rest" />
 		<property name="workflowEngineUser" value="admin" />
 		<property name="workflowEnginePassword" value="a1b2c3d4" />
 	</bean>	
+	
+	<bean id="mwClient" class="com.quikj.mw.activiti.rest.bean.MiddlewareClientImpl"
+		init-method="init">
+		<property name="mwServiceUrl" value="http://localhost:8080/mw/rest" />
+		<property name="mwUser" value="activiti" />
+		<property name="mwPassword" value="a1b2c3d4" />
+		<property name="mwHost" value="localhost" />
+		<property name="mwPort" value="8080" />
+	</bean>
 </beans>
