@@ -52,4 +52,8 @@ public interface ClientBean {
 
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	Client getClientById(long clientId);
+
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+	Authentication authenticateByEmail(String email, String domain,
+			String password);
 }

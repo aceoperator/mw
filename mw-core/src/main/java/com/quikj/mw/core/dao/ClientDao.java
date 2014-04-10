@@ -22,6 +22,10 @@ public interface ClientDao {
 	Authentication authenticate(@Param(value = "userId") String userId,
 			@Param(value = "domain") String domain,
 			@Param(value = "password") String password);
+	
+	Authentication authenticateByEmail(@Param(value = "email") String email,
+			@Param(value = "domain") String domain,
+			@Param(value = "password") String password);
 
 	List<String> listRoles(@Param(value = "clientId") long clientId,
 			@Param(value = "domainId") long domainId);

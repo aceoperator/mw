@@ -24,7 +24,7 @@ INSERT INTO MWC_CLIENT_DOMAIN_ROLE_MAP (CLIENT_DOMAIN_ID, ROLE_ID)
 
 -- Change the password and other columns as needed in the following insert statement for security reasons
 INSERT INTO MWC_CLIENT (USERID, PASSWORD, LAST_NAME, FIRST_NAME, EMAIL)
-	VALUES ('activiti', PASSWORD('a1b2c3d4'), 'Client', 'Middleware', 'info@quik-j.com');
+	VALUES ('activiti', PASSWORD('a1b2c3d4'), 'Client', 'Middleware', 'activiti@quik-j.com');
 
 INSERT INTO MWC_CLIENT_DOMAIN_MAP (CLIENT_ID, DOMAIN_ID)
 	SELECT ID,

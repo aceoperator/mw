@@ -17,13 +17,23 @@
 	<parameterMap type="com.quikj.mw.core.value.Domain" id="domainParam" />
 
 	<select id="authenticate" statementType="PREPARED" resultMap="authenticationResult">
-		SELECT c.ID AS id,
-		d.ID AS domainId
+		SELECT c.ID AS id, d.ID AS domainId, c.USERID AS userId, d.NAME AS domainName
 		FROM MWC_CLIENT c,
 		MWC_CLIENT_DOMAIN_MAP m, MWC_DOMAIN d
 		WHERE c.ID = m.CLIENT_ID AND d.ID
 		= m.DOMAIN_ID
 		AND c.USERID = #{userId} AND c.PASSWORD =
+		PASSWORD(#{password}) AND
+		d.NAME = #{domain}
+	</select>
+	
+	<select id="authenticateByEmail" statementType="PREPARED" resultMap="authenticationResult">
+		SELECT c.ID AS id, d.ID AS domainId, c.USERID AS userId, d.NAME AS domainName
+		FROM MWC_CLIENT c,
+		MWC_CLIENT_DOMAIN_MAP m, MWC_DOMAIN d
+		WHERE c.ID = m.CLIENT_ID AND d.ID
+		= m.DOMAIN_ID
+		AND c.EMAIL = #{email} AND c.PASSWORD =
 		PASSWORD(#{password}) AND
 		d.NAME = #{domain}
 	</select>

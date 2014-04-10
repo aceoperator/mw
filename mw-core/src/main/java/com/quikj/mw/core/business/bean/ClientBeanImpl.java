@@ -53,6 +53,27 @@ public class ClientBeanImpl implements ClientBean {
 
 		return client;
 	}
+	
+	@Override
+	public Authentication authenticateByEmail(String email, String domain,
+			String password) {
+		
+		if (domain == null) {
+			domain = ClientBean.DEFAULT_DOMAIN;
+		}
+		
+		Authentication client = clientDao
+				.authenticateByEmail(email, domain, password);
+		if (client == null) {
+			throw new MiddlewareSecurityException("Authentication failed");
+		}
+
+		List<String> roles = clientDao.listRoles(client.getId(),
+				client.getDomainId());
+		client.setRoles(roles);
+
+		return client;
+	}
 
 	@Override
 	@RolesAllowed({"SYS"})

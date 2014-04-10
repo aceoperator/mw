@@ -223,11 +223,22 @@ public class ClientBeanTest {
 				.getRoles().get(1).getName());
 
 		// Verify authentication
-		Authentication auth = clientBean.authenticate("user1", "domain1",
+		Authentication auth = clientBean.authenticateByEmail("user1@quik-j.com", "domain1",
+				"A1b2c3d4");
+		assertNotNull(auth);
+		assertEquals(clientDb.getId(), auth.getId());
+		assertEquals(clientDb.getUserId(), auth.getUserId());
+		assertEquals("domain1", auth.getDomainName());
+		assertEquals(clientDb.getDomains().get(0).getId(), auth.getDomainId());
+		assertEquals(2, auth.getRoles().size());
+		
+		auth = clientBean.authenticate("user1", "domain1",
 				"A1b2c3d4");
 		assertNotNull(auth);
 		assertEquals(clientDb.getId(), auth.getId());
 		assertEquals(clientDb.getDomains().get(0).getId(), auth.getDomainId());
+		assertEquals(clientDb.getUserId(), auth.getUserId());
+		assertEquals("domain1", auth.getDomainName());
 		assertEquals(2, auth.getRoles().size());
 
 		Collections.sort(auth.getRoles(), new Comparator<String>() {
@@ -372,7 +383,7 @@ public class ClientBeanTest {
 			// Expected
 		}
 		
-		client.setEmail("info@quik-j.com");
+		client.setEmail("bogus@quik-j.com");
 		
 		try {
 			clientBean.createClient(client);

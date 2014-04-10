@@ -29,31 +29,41 @@ public class MiddlewareAuthenticationProvider implements AuthenticationProvider 
 	public void setClientBean(ClientBean clientBean) {
 		this.clientBean = clientBean;
 	}
-	
+
 	@Override
 	public Authentication authenticate(Authentication auth)
 			throws AuthenticationException {
 
 		try {
-			
+
 			String name = auth.getName();
-			String[] tokens = name.split("@");
+			String[] tokens = name.split("&");
 			String userName = tokens[0];
 			String domainName = ClientBean.DEFAULT_DOMAIN;
 			if (tokens.length > 1) {
 				domainName = tokens[1];
 			}
-			
-			com.quikj.mw.core.value.Authentication authentication = clientBean.authenticate(userName, domainName,
-					(String) auth.getCredentials());
+
+			com.quikj.mw.core.value.Authentication authentication;
+			tokens = userName.split("@");
+			if (tokens.length > 1) {
+				authentication = clientBean.authenticateByEmail(userName,
+						domainName, (String) auth.getCredentials());
+			} else {
+				authentication = clientBean.authenticate(userName, domainName,
+						(String) auth.getCredentials());
+			}
+
 			List<GrantedAuthority> roles = new ArrayList<GrantedAuthority>();
 			for (String role : authentication.getRoles()) {
 				roles.add(new GrantedAuthorityImpl(role));
 			}
 
 			org.springframework.security.core.userdetails.User u = new org.springframework.security.core.userdetails.User(
-					userName + "@" + domainName, (String) auth.getCredentials(), true, true,
-					true, true, roles);
+					authentication.getUserId() + "@"
+							+ authentication.getDomainName(),
+					(String) auth.getCredentials(), true, true, true, true,
+					roles);
 			return new UsernamePasswordAuthenticationToken(u,
 					auth.getCredentials(), roles);
 		} catch (Exception e) {
