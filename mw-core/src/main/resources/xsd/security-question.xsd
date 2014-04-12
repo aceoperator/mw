@@ -1,0 +1,22 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	xmlns="http://www.quikj.com/mw/core/value"
+	targetNamespace="http://www.quikj.com/mw/core/value" 
+	elementFormDefault="qualified">
+
+	<xs:element name="SecurityQuestions" type="SecurityQuestions"/>
+	
+	<xs:complexType name="SecurityQuestions">
+		<xs:sequence>
+			<xs:element name="SecurityQuestion" type="SecurityQuestion" />
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="SecurityQuestion">
+		<xs:sequence>
+			<xs:element name="ClientId" type="xs:long" />
+			<xs:element name="Question" type="xs:string" />
+			<xs:element name="Answer" type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+	
+</xs:schema>

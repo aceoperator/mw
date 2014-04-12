@@ -7,7 +7,8 @@
 	<resultMap type="com.quikj.mw.core.value.Authentication" id="authenticationResult" />
 	<resultMap type="com.quikj.mw.core.value.Client" id="clientResult" />
 	<resultMap type="com.quikj.mw.core.value.Domain" id="domainResult" />
-	<resultMap type="com.quikj.mw.core.value.Role" id="roleResult" />	
+	<resultMap type="com.quikj.mw.core.value.Role" id="roleResult" />
+	<resultMap type="com.quikj.mw.core.value.SecurityQuestion" id="securityQuestionResult" />	
 
 	<parameterMap type="com.quikj.mw.core.value.Client" id="clientParam" />
 	<parameterMap type="com.quikj.mw.core.dao.value.ClientDomainMap"
@@ -205,5 +206,12 @@
 		INSERT INTO MWC_SECURITY_QUESTION (CLIENT_ID, QUESTION, ANSWER)
 		VALUES (#{clientId}, #{question}, #{answer})
 	</insert>
+	
+	<select id="getSecurityQuestions" statementType="PREPARED" resultMap="securityQuestionResult">
+		SELECT s.QUESTION AS question, s.ANSWER AS answer
+		FROM MWC_SECURITY_QUESTION s, MWC_CLIENT c
+		WHERE s.CLIENT_ID = c.ID
+		WHERE c.USERID = #{userId})
+	</select>
 
 </mapper>

@@ -5,6 +5,7 @@
 
 	<xs:include schemaLocation="domain.xsd" />
 	<xs:include schemaLocation="property.xsd" />
+	<xs:include schemaLocation="security-question.xsd" />
 
 	<xs:element name="Client" type="Client"/>
 	
@@ -37,14 +38,6 @@
 			<xs:element name="Property" type="Property" minOccurs="0" maxOccurs="unbounded" />
 			
 			<xs:element name="SecurityQuestion" type="SecurityQuestion" minOccurs="0" maxOccurs="unbounded" />
-		</xs:sequence>
-	</xs:complexType>
-	
-	<xs:complexType name="SecurityQuestion">
-		<xs:sequence>
-			<xs:element name="ClientId" type="xs:long" />
-			<xs:element name="Question" type="xs:string" />
-			<xs:element name="Answer" type="xs:string" />
 		</xs:sequence>
 	</xs:complexType>
 	

@@ -36,7 +36,6 @@ public interface ClientBean {
 
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	Client getClientByUserId(String userId);
-
 	
 	@Transactional(propagation = Propagation.REQUIRED)
 	void createDomain(Domain domain);
@@ -67,6 +66,6 @@ public interface ClientBean {
 	void changePassword(String userId, String newPassword);
 
 	@Transactional(propagation = Propagation.REQUIRED)
-	void setSecurityQuestions(String userId, String password,
+	void resetSecurityQuestions(String userId, String password,
 			List<SecurityQuestion> securityQuestions);
 }

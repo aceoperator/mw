@@ -30,6 +30,7 @@ import com.quikj.mw.core.value.Authentication;
 import com.quikj.mw.core.value.Client;
 import com.quikj.mw.core.value.Domain;
 import com.quikj.mw.core.value.Role;
+import com.quikj.mw.core.value.SecurityQuestion;
 
 /**
  * @author amit
@@ -250,35 +251,6 @@ public class ClientBeanTest {
 		assertEquals(roles.get(1).getName(), clientDb.getDomains().get(1)
 				.getRoles().get(1).getName());
 
-		// Verify authentication
-		Authentication auth = clientBean.authenticateByEmail("user1@quik-j.com", "domain1",
-				"A1b2c3d4");
-		assertNotNull(auth);
-		assertEquals(clientDb.getId(), auth.getId());
-		assertEquals(clientDb.getUserId(), auth.getUserId());
-		assertEquals("domain1", auth.getDomainName());
-		assertEquals(clientDb.getDomains().get(0).getId(), auth.getDomainId());
-		assertEquals(2, auth.getRoles().size());
-		
-		auth = clientBean.authenticate("user1", "domain1",
-				"A1b2c3d4");
-		assertNotNull(auth);
-		assertEquals(clientDb.getId(), auth.getId());
-		assertEquals(clientDb.getDomains().get(0).getId(), auth.getDomainId());
-		assertEquals(clientDb.getUserId(), auth.getUserId());
-		assertEquals("domain1", auth.getDomainName());
-		assertEquals(2, auth.getRoles().size());
-
-		Collections.sort(auth.getRoles(), new Comparator<String>() {
-			@Override
-			public int compare(String o1, String o2) {
-				return o1.compareTo(o2);
-			}
-		});
-
-		assertEquals(roles.get(0).getName(), auth.getRoles().get(0));
-		assertEquals(roles.get(1).getName(), auth.getRoles().get(1));
-
 		// Now to the update operations
 
 		client.setId(clientDb.getId());
@@ -414,6 +386,9 @@ public class ClientBeanTest {
 		
 		client.setDefaultDomainName("bogus");
 		
+		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q1", "a1"));
+		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q1", "a2"));
+		
 		try {
 			clientBean.createClient(client);
 			fail();
@@ -492,6 +467,102 @@ public class ClientBeanTest {
 		}
 		
 		client.setPhone2("1-800-555-1213");
+		try {
+			clientBean.createClient(client);
+			fail();
+		} catch (ValidationException e) {
+			// Expected
+		}
+		
+		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q3", "a3"));
+		try {
+			clientBean.createClient(client);
+			fail();
+		} catch (ValidationException e) {
+			// Expected
+		}
+		
+		client.getSecurityQuestions().get(1).setQuestion("q2");
+		
 		clientBean.createClient(client);
+	}
+	
+	@Test
+	public void testAuthentication() {
+		Domain domain1 = new Domain(0L, "domain1", "http://www.quik-j.com",
+				null);
+		clientBean.createDomain(domain1);
+
+		Domain domain2 = new Domain(0L, "domain2", "http://www.cafesip.org",
+				null);
+		clientBean.createDomain(domain2);
+
+		Client client = new Client();
+		client.setUserId("user1");
+		client.setFirstName("Test");
+		client.setLastName("User");
+		client.setEmail("user1@quik-j.com");
+		client.setAdditionalInfo("Additional Information");
+		client.setPassword("A1b2c3d4");
+		client.setPhone1("9195551212");
+		client.setPhone2("8005551212");
+		client.setStreetAddress1("1000 Wall Street");
+		client.setStreetAddress2("Suite 202");
+		client.setCity("New York");
+		client.setState("New York");
+		client.setCountry("USA");
+		client.setPostalCode("12345-7890");
+
+		List<Role> roles = new ArrayList<Role>();
+		roles.add(new Role(0L, "ADMIN"));
+		roles.add(new Role(0L, "MANAGER"));
+
+		client.getDomains().add(domain1);
+		for (Role role : roles) {
+			domain1.getRoles().add(role);
+		}
+		client.getDomains().add(domain2);
+		for (Role role : roles) {
+			domain2.getRoles().add(role);
+		}
+
+		client.setDefaultDomainName(domain1.getName());
+		
+		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q1", "a1"));
+		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q2", "a2"));
+		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q3", "a3"));
+		
+		clientBean.createClient(client);
+		
+		Client clientDb = clientBean.getClientByUserId("user1");
+		
+		// Verify authentication
+		Authentication auth = clientBean.authenticateByEmail("user1@quik-j.com", "domain1",
+				"A1b2c3d4");
+		assertNotNull(auth);
+		assertEquals(clientDb.getId(), auth.getId());
+		assertEquals(clientDb.getUserId(), auth.getUserId());
+		assertEquals("domain1", auth.getDomainName());
+		assertEquals(clientDb.getDomains().get(0).getId(), auth.getDomainId());
+		assertEquals(2, auth.getRoles().size());
+		
+		auth = clientBean.authenticate("user1", "domain1",
+				"A1b2c3d4");
+		assertNotNull(auth);
+		assertEquals(clientDb.getId(), auth.getId());
+		assertEquals(clientDb.getDomains().get(0).getId(), auth.getDomainId());
+		assertEquals(clientDb.getUserId(), auth.getUserId());
+		assertEquals("domain1", auth.getDomainName());
+		assertEquals(2, auth.getRoles().size());
+
+		Collections.sort(auth.getRoles(), new Comparator<String>() {
+			@Override
+			public int compare(String o1, String o2) {
+				return o1.compareTo(o2);
+			}
+		});
+
+		assertEquals(roles.get(0).getName(), auth.getRoles().get(0));
+		assertEquals(roles.get(1).getName(), auth.getRoles().get(1));
 	}
 }
