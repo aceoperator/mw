@@ -120,7 +120,7 @@ public class ClientBeanTest {
 		}
 
 		client.setDefaultDomainName(domain1.getName());
-		
+
 		clientBean.createClient(client);
 
 		Client clientDb = clientBean.getClientByUserId("user1");
@@ -140,10 +140,10 @@ public class ClientBeanTest {
 		assertEquals(client.getState(), clientDb.getState());
 		assertEquals(client.getCountry(), clientDb.getCountry());
 		assertEquals(client.getPostalCode(), clientDb.getPostalCode());
-		
+
 		assertEquals(domain1.getName(), client.getDefaultDomainName());
 		assertTrue(client.getDefaultDomainId() > 0L);
-		
+
 		assertEquals(2, clientDb.getDomains().size());
 
 		Collections.sort(clientDb.getDomains(), new Comparator<Domain>() {
@@ -204,10 +204,10 @@ public class ClientBeanTest {
 		assertEquals(client.getState(), clientDb.getState());
 		assertEquals(client.getCountry(), clientDb.getCountry());
 		assertEquals(client.getPostalCode(), clientDb.getPostalCode());
-		
+
 		assertEquals(domain1.getName(), client.getDefaultDomainName());
 		assertTrue(client.getDefaultDomainId() > 0L);
-		
+
 		assertEquals(2, clientDb.getDomains().size());
 
 		Collections.sort(clientDb.getDomains(), new Comparator<Domain>() {
@@ -268,8 +268,7 @@ public class ClientBeanTest {
 		client.setState("Illinois");
 		client.setCountry("USA");
 		client.setPostalCode("12346-7899");
-		
-		
+
 		// Add a new domain, remove the old domain, modify roles in an existing
 		// domain
 
@@ -291,7 +290,7 @@ public class ClientBeanTest {
 		domain2.getRoles().add(new Role(0L, "USER"));
 
 		client.setDefaultDomainName(domain2.getName());
-		
+
 		clientBean.updateClient(client);
 
 		clientDb = clientBean.getClientById(clientDb.getId());
@@ -311,10 +310,10 @@ public class ClientBeanTest {
 		assertEquals(client.getState(), clientDb.getState());
 		assertEquals(client.getCountry(), clientDb.getCountry());
 		assertEquals(client.getPostalCode(), clientDb.getPostalCode());
-		
+
 		assertEquals(domain2.getName(), client.getDefaultDomainName());
 		assertTrue(client.getDefaultDomainId() > 0L);
-		
+
 		assertEquals(2, clientDb.getDomains().size());
 
 		Collections.sort(clientDb.getDomains(), new Comparator<Domain>() {
@@ -367,14 +366,16 @@ public class ClientBeanTest {
 
 	@Test
 	public void testValidations() {
-		Domain domain1 = new Domain(0L, "domain1", "http://www.quik-j.com", null);
+		Domain domain1 = new Domain(0L, "domain1", "http://www.quik-j.com",
+				null);
 		clientBean.createDomain(domain1);
-		
-		Domain domain2 = new Domain(0L, "domain2", "http://www.cafesip.org", null);
+
+		Domain domain2 = new Domain(0L, "domain2", "http://www.cafesip.org",
+				null);
 		clientBean.createDomain(domain2);
-		
+
 		Client client = new Client();
-		
+
 		client.setFirstName("Test1");
 		client.setLastName("User1");
 		client.setAdditionalInfo("Additional Information 2");
@@ -383,72 +384,72 @@ public class ClientBeanTest {
 		client.setPhone2("1-9105551212A");
 
 		client.getDomains().add(domain1);
-		
+
 		client.setDefaultDomainName("bogus");
-		
+
 		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q1", "a1"));
 		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q1", "a2"));
-		
+
 		try {
 			clientBean.createClient(client);
 			fail();
 		} catch (ValidationException e) {
 			// Expected
 		}
-		
+
 		client.setUserId("user 2");
 		client.setEmail("bademail");
-		
+
 		try {
 			clientBean.createClient(client);
 			fail();
 		} catch (ValidationException e) {
 			// Expected
 		}
-		
+
 		client.setUserId("user2");
-		
+
 		try {
 			clientBean.createClient(client);
 			fail();
 		} catch (ValidationException e) {
 			// Expected
 		}
-		
+
 		client.setEmail("bogus@quik-j.com");
-		
+
 		try {
 			clientBean.createClient(client);
 			fail();
 		} catch (ValidationException e) {
 			// Expected
 		}
-		
+
 		try {
 			clientBean.createClient(client);
 			fail();
 		} catch (ValidationException e) {
 			// Expected
 		}
-		
+
 		client.setPassword("A1b2c3d4");
-		
+
 		try {
 			clientBean.createClient(client);
 			fail();
 		} catch (ValidationException e) {
 			// Expected
 		}
-		
+
 		client.setDefaultDomainName(domain2.getName());
-		
+
 		try {
 			clientBean.createClient(client);
 			fail();
 		} catch (ValidationException e) {
 			// Expected
 		}
-		
+
 		client.setDefaultDomainName(domain1.getName());
 		try {
 			clientBean.createClient(client);
@@ -456,7 +457,7 @@ public class ClientBeanTest {
 		} catch (ValidationException e) {
 			// Expected
 		}
-		
+
 		client.setPhone1("1-800-555-1212");
 		client.setPhone2("1-800-555-1212");
 		try {
@@ -465,7 +466,7 @@ public class ClientBeanTest {
 		} catch (ValidationException e) {
 			// Expected
 		}
-		
+
 		client.setPhone2("1-800-555-1213");
 		try {
 			clientBean.createClient(client);
@@ -473,7 +474,7 @@ public class ClientBeanTest {
 		} catch (ValidationException e) {
 			// Expected
 		}
-		
+
 		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q3", "a3"));
 		try {
 			clientBean.createClient(client);
@@ -481,12 +482,41 @@ public class ClientBeanTest {
 		} catch (ValidationException e) {
 			// Expected
 		}
-		
+
 		client.getSecurityQuestions().get(1).setQuestion("q2");
-		
+
 		clientBean.createClient(client);
+		
+		Authentication auth = clientBean.authenticate("user2", "domain1", client.getPassword());
+		assertNotNull(auth);
+
+		client.getSecurityQuestions().clear();
+		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q1", "a4"));
+		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q1", "a5"));
+
+		try {
+			clientBean.resetSecurityQuestions("user2", client.getPassword(),
+					client.getSecurityQuestions());
+			fail();
+		} catch (ValidationException e) {
+			// Expected
+		}
+
+		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q3", "a6"));
+		try {
+			clientBean.resetSecurityQuestions("user2", client.getPassword(),
+					client.getSecurityQuestions());
+			fail();
+		} catch (ValidationException e) {
+			// Expected
+		}
+
+		client.getSecurityQuestions().get(1).setQuestion("q2");
+
+		clientBean.resetSecurityQuestions("user2", client.getPassword(),
+				client.getSecurityQuestions());
 	}
-	
+
 	@Test
 	public void testAuthentication() {
 		Domain domain1 = new Domain(0L, "domain1", "http://www.quik-j.com",
@@ -527,27 +557,26 @@ public class ClientBeanTest {
 		}
 
 		client.setDefaultDomainName(domain1.getName());
-		
+
 		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q1", "a1"));
 		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q2", "a2"));
 		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q3", "a3"));
-		
+
 		clientBean.createClient(client);
-		
+
 		Client clientDb = clientBean.getClientByUserId("user1");
-		
+
 		// Verify authentication
-		Authentication auth = clientBean.authenticateByEmail("user1@quik-j.com", "domain1",
-				"A1b2c3d4");
+		Authentication auth = clientBean.authenticateByEmail(
+				"user1@quik-j.com", "domain1", "A1b2c3d4");
 		assertNotNull(auth);
 		assertEquals(clientDb.getId(), auth.getId());
 		assertEquals(clientDb.getUserId(), auth.getUserId());
 		assertEquals("domain1", auth.getDomainName());
 		assertEquals(clientDb.getDomains().get(0).getId(), auth.getDomainId());
 		assertEquals(2, auth.getRoles().size());
-		
-		auth = clientBean.authenticate("user1", "domain1",
-				"A1b2c3d4");
+
+		auth = clientBean.authenticate("user1", "domain1", "A1b2c3d4");
 		assertNotNull(auth);
 		assertEquals(clientDb.getId(), auth.getId());
 		assertEquals(clientDb.getDomains().get(0).getId(), auth.getDomainId());
@@ -564,5 +593,45 @@ public class ClientBeanTest {
 
 		assertEquals(roles.get(0).getName(), auth.getRoles().get(0));
 		assertEquals(roles.get(1).getName(), auth.getRoles().get(1));
+
+		// verify change password
+		clientBean.changeOwnPassword("user1", "A1b2c3d4", "Abcd1234");
+
+		auth = clientBean.authenticate("user1", "domain1", "Abcd1234");
+		assertNotNull(auth);
+		assertEquals(clientDb.getId(), auth.getId());
+
+		clientBean.changePassword("user1", "A1b2c3d4");
+		auth = clientBean.authenticate("user1", "domain1", "A1b2c3d4");
+		assertNotNull(auth);
+		assertEquals(clientDb.getId(), auth.getId());
+
+		// Verify password reset
+		String newPassword = clientBean.resetPassword("user1",
+				client.getSecurityQuestions());
+		assertNotNull(newPassword);
+		assertTrue(newPassword.indexOf('-') == -1);
+
+		auth = clientBean.authenticate("user1", "domain1", newPassword);
+		assertNotNull(auth);
+		assertEquals(clientDb.getId(), auth.getId());
+
+		// Verify reset security questions
+		client.getSecurityQuestions().clear();
+		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q4", "a4"));
+		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q5", "a5"));
+		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q6", "a6"));
+
+		clientBean.resetSecurityQuestions("user1", newPassword,
+				client.getSecurityQuestions());
+
+		newPassword = clientBean.resetPassword("user1",
+				client.getSecurityQuestions());
+		assertNotNull(newPassword);
+		assertTrue(newPassword.indexOf('-') == -1);
+
+		auth = clientBean.authenticate("user1", "domain1", newPassword);
+		assertNotNull(auth);
+		assertEquals(clientDb.getId(), auth.getId());
 	}
 }

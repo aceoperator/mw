@@ -68,4 +68,7 @@ public interface ClientBean {
 	@Transactional(propagation = Propagation.REQUIRED)
 	void resetSecurityQuestions(String userId, String password,
 			List<SecurityQuestion> securityQuestions);
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	String resetPassword(String userId, List<SecurityQuestion> questions);
 }

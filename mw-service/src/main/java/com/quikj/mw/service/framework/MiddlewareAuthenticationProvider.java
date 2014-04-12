@@ -35,9 +35,8 @@ public class MiddlewareAuthenticationProvider implements AuthenticationProvider 
 			throws AuthenticationException {
 
 		try {
-
 			String name = auth.getName();
-			String[] tokens = name.split("|");
+			String[] tokens = name.split(",");
 			String userName = tokens[0];
 			String domainName = ClientBean.DEFAULT_DOMAIN;
 			if (tokens.length > 1) {
@@ -60,7 +59,7 @@ public class MiddlewareAuthenticationProvider implements AuthenticationProvider 
 			}
 
 			org.springframework.security.core.userdetails.User u = new org.springframework.security.core.userdetails.User(
-					authentication.getUserId() + "@"
+					authentication.getUserId() + ","
 							+ authentication.getDomainName(),
 					(String) auth.getCredentials(), true, true, true, true,
 					roles);

@@ -481,6 +481,7 @@ public class ClientBeanImpl implements ClientBean {
 		}
 	}
 	
+	@Override
 	public String resetPassword(String userId, List<SecurityQuestion> questions) {		
 		List<SecurityQuestion> security = clientDao.getSecurityQuestions(userId);
 		if (security == null || security.isEmpty()) {

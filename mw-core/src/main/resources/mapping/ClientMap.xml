@@ -181,14 +181,14 @@
 	
 	<update id="changeOwnPassword" statementType="PREPARED">
 		UPDATE MWC_CLIENT
-		SET PASSWORD = PASSWORD(#newPassword)
+		SET PASSWORD = PASSWORD(#{newPassword})
 		WHERE USERID = #{userId} AND PASSWORD = PASSWORD(#{oldPassword})
 	</update>
 	
 	<update id="changePassword" statementType="PREPARED">
 		UPDATE MWC_CLIENT
-		SET PASSWORD = PASSWORD(#newPassword)
-		WHERE USERID = #{userId})
+		SET PASSWORD = PASSWORD(#{newPassword})
+		WHERE USERID = #{userId}
 	</update>
 	
 	<select id="getClientId" statementType="PREPARED" resultType="java.lang.Long">
@@ -211,7 +211,7 @@
 		SELECT s.QUESTION AS question, s.ANSWER AS answer
 		FROM MWC_SECURITY_QUESTION s, MWC_CLIENT c
 		WHERE s.CLIENT_ID = c.ID
-		WHERE c.USERID = #{userId})
+			AND c.USERID = #{userId}
 	</select>
 
 </mapper>
