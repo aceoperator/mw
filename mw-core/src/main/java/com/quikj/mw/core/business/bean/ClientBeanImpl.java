@@ -20,6 +20,7 @@ import com.quikj.mw.core.value.Authentication;
 import com.quikj.mw.core.value.Client;
 import com.quikj.mw.core.value.Domain;
 import com.quikj.mw.core.value.Role;
+import com.quikj.mw.core.value.SecurityQuestion;
 
 /**
  * @author amit
@@ -28,6 +29,11 @@ import com.quikj.mw.core.value.Role;
 public class ClientBeanImpl implements ClientBean {
 
 	private ClientDao clientDao;
+	private int minimumSecurityQuestions = 3;
+
+	public void setMinimumSecurityQuestions(int minimumSecurityQuestions) {
+		this.minimumSecurityQuestions = minimumSecurityQuestions;
+	}
 
 	public void setClientDao(ClientDao clientDao) {
 		this.clientDao = clientDao;
@@ -36,11 +42,11 @@ public class ClientBeanImpl implements ClientBean {
 	@Override
 	public Authentication authenticate(String userId, String domain,
 			String password) {
-		
+
 		if (domain == null) {
 			domain = ClientBean.DEFAULT_DOMAIN;
 		}
-		
+
 		Authentication client = clientDao
 				.authenticate(userId, domain, password);
 		if (client == null) {
@@ -53,17 +59,17 @@ public class ClientBeanImpl implements ClientBean {
 
 		return client;
 	}
-	
+
 	@Override
 	public Authentication authenticateByEmail(String email, String domain,
 			String password) {
-		
+
 		if (domain == null) {
 			domain = ClientBean.DEFAULT_DOMAIN;
 		}
-		
-		Authentication client = clientDao
-				.authenticateByEmail(email, domain, password);
+
+		Authentication client = clientDao.authenticateByEmail(email, domain,
+				password);
 		if (client == null) {
 			throw new MiddlewareSecurityException("Authentication failed");
 		}
@@ -76,10 +82,15 @@ public class ClientBeanImpl implements ClientBean {
 	}
 
 	@Override
-	@RolesAllowed({"SYS"})
+	@RolesAllowed({ "SYS" })
 	public void createClient(Client client) {
 
 		validateClient(client, true);
+
+		if (client.getDefaultDomainName() != null
+				&& !client.getDefaultDomainName().isEmpty()) {
+			validateAndSetDefaultDomainId(client);
+		}
 
 		clientDao.createClient(client);
 
@@ -103,11 +114,38 @@ public class ClientBeanImpl implements ClientBean {
 		}
 	}
 
+	private void validateAndSetDefaultDomainId(Client client) {
+		boolean found = false;
+		for (Domain domain: client.getDomains()) {
+			if (domain.getName().equals(client.getDefaultDomainName())) {
+				found = true;
+				break;
+			}
+		}
+		
+		if (!found) {
+			throw new ValidationException("The default domain is not found in the domain list");
+		}
+		
+		client.setDefaultDomainName(Validator.validateName(client.getDefaultDomainName(), "Default Domain Name"));
+		Domain domain = clientDao.getDomainByName(client.getDefaultDomainName());
+		if (domain == null) {
+			throw new ValidationException("The default domain was not found");
+		}
+		
+		client.setDefaultDomainId(domain.getId());
+	}
+
 	@Override
-	@RolesAllowed({"SYS"})
+	@RolesAllowed({ "SYS" })
 	public void updateClient(Client client) {
 
 		validateClient(client, false);
+		
+		if (client.getDefaultDomainName() != null
+				&& !client.getDefaultDomainName().isEmpty()) {
+			validateAndSetDefaultDomainId(client);
+		}
 
 		Client oldClient = getClientById(client.getId());
 		if (oldClient == null) {
@@ -221,7 +259,7 @@ public class ClientBeanImpl implements ClientBean {
 	}
 
 	@Override
-	@RolesAllowed({"SYS"})
+	@RolesAllowed({ "SYS" })
 	public void deleteClient(long clientId) {
 		int affected = clientDao.deleteClient(clientId);
 		if (affected == 0) {
@@ -230,12 +268,17 @@ public class ClientBeanImpl implements ClientBean {
 	}
 
 	@Override
-	public Client getClientByUserId(String userId, String domain) {
-		Client client = clientDao.getClientByUserId(userId, domain);
+	public Client getClientByUserId(String userId) {
+		Client client = clientDao.getClientByUserId(userId);
 		if (client == null) {
 			throw new MiddlewareCoreException("The client was not found");
 		}
-
+		
+		if (client.getDefaultDomainId() != null && client.getDefaultDomainId() > 0L) {
+			Domain domain = clientDao.getDomainById(client.getDefaultDomainId());
+			client.setDefaultDomainName(domain.getName());
+		}
+		
 		List<Domain> domains = clientDao.getClientDomains(client.getId());
 
 		for (Domain d : domains) {
@@ -247,7 +290,7 @@ public class ClientBeanImpl implements ClientBean {
 
 		return client;
 	}
-	
+
 	@Override
 	public Client getClientById(long clientId) {
 		Client client = clientDao.getClientById(clientId);
@@ -255,6 +298,11 @@ public class ClientBeanImpl implements ClientBean {
 			throw new MiddlewareCoreException("The client was not found");
 		}
 
+		if (client.getDefaultDomainId() != null && client.getDefaultDomainId() > 0L) {
+			Domain domain = clientDao.getDomainById(client.getDefaultDomainId());
+			client.setDefaultDomainName(domain.getName());
+		}
+		
 		List<Domain> domains = clientDao.getClientDomains(client.getId());
 
 		for (Domain d : domains) {
@@ -268,61 +316,142 @@ public class ClientBeanImpl implements ClientBean {
 	}
 
 	@Override
-	@RolesAllowed({"SYS"})
+	@RolesAllowed({ "SYS" })
 	public void createDomain(Domain domain) {
 		validateDomain(domain, true);
 		clientDao.createDomain(domain);
 	}
 
 	@Override
-	@RolesAllowed({"SYS"})
+	@RolesAllowed({ "SYS" })
 	public void deleteDomain(long domainId) {
 		clientDao.deleteDomain(domainId);
 	}
 
 	@Override
-	@RolesAllowed({"SYS"})
+	@RolesAllowed({ "SYS" })
 	public void updateDomain(Domain domain) {
 		validateDomain(domain, false);
 		clientDao.updateDomain(domain);
 	}
 
 	@Override
-	@RolesAllowed({"SYS"})
+	@RolesAllowed({ "SYS" })
 	public Domain getDomainByName(String domainName) {
 		return clientDao.getDomainByName(domainName);
 	}
+	
+	@Override
+	@RolesAllowed({ "SYS" })
+	public Domain getDomainById(long domainId) {
+		return clientDao.getDomainById(domainId);
+	}
 
 	@Override
-	public void changePassword(String userId, String oldPassword,
+	public void changeOwnPassword(String userId, String oldPassword,
 			String newPassword) {
-		int affected = clientDao.changePassword(userId, oldPassword,
+		newPassword = Validator.validatePassword(newPassword);
+		int affected = clientDao.changeOwnPassword(userId, oldPassword,
 				newPassword);
 		if (affected == 0) {
 			throw new MiddlewareSecurityException(
 					"The password change failed because the user name and/or the password is incorrect");
 		}
 	}
+	
+	@Override
+	@RolesAllowed({ "SYS" })
+	public void changePassword(String userId, String newPassword) {
+		newPassword = Validator.validatePassword(newPassword);
+		int affected = clientDao.changePassword(userId, newPassword);
+		if (affected == 0) {
+			throw new MiddlewareSecurityException(
+					"The password change failed because the user name is incorrect");
+		}
+	}
 
 	private void validateDomain(Domain domain, boolean createOperation) {
-		Validator.validateName(domain.getName(), "Domain Name");
-		
+		domain.setName(Validator.validateName(domain.getName(), "Domain Name"));
+
 		if (!createOperation) {
 			// update operation
 			if (domain.getId() <= 0L) {
-				throw new ValidationException("The domain id has not been specified");
+				throw new ValidationException(
+						"The domain id has not been specified");
 			}
+		}
+	}
+	
+	@Override
+	public void setSecurityQuestions(String userId, String password, List<SecurityQuestion> securityQuestions) {
+		Long clientId = clientDao.getClientId(userId, password);
+		if (clientId == null) {
+			throw new MiddlewareSecurityException("Authentication failed");
+		}
+		
+		validateSecurityQuestions(securityQuestions);
+		
+		// Remove the previous questions set by this user
+		clientDao.clearSecurityQuestions(clientId);
+		
+		for (SecurityQuestion question: securityQuestions) {
+			question.setClientId(clientId);
+			clientDao.createSecurityQuestion(question);
 		}
 	}
 
 	private void validateClient(Client client, boolean createOperation) {
-		
-		Validator.validateName(client.getUserId(), "User Id");
-		
+
+		client.setUserId(Validator.validateName(client.getUserId(), "User Id"));
+
 		if (createOperation) {
 			Validator.validatePassword(client.getPassword());
 		}
-		
+
 		Validator.validateEmail(client.getEmail(), "Email");
+		
+		
+		if (client.getPhone1() != null) {
+			client.setPhone1(Validator.validatePhoneNumber(client.getPhone1(), "Phone Number 1"));
+		}
+		
+		if (client.getPhone2() != null) {
+			client.setPhone2(Validator.validatePhoneNumber(client.getPhone2(), "Phone Number 2"));
+		}
+		
+		if (client.getPhone1() != null && client.getPhone2() != null) {
+			if (client.getPhone1().equals(client.getPhone2())) {
+				throw new ValidationException("The phone numbers are the same");
+			}
+		}		
+	}
+
+	private void validateSecurityQuestions(List<SecurityQuestion> questions) {
+		if (questions.size() < minimumSecurityQuestions ) {
+			throw new ValidationException("You must provide at least " + minimumSecurityQuestions + " questions");
+		}
+		
+		List<String> previousQuestions = new ArrayList<>();
+		for (SecurityQuestion security: questions) {
+			if (security.getQuestion() == null || security.getQuestion().trim().isEmpty()) {
+				throw new ValidationException("A question cannot be empty");
+			}
+				
+			security.setQuestion(security.getQuestion().trim());
+			
+			if (security.getAnswer() == null || security.getAnswer().trim().isEmpty()) {
+				throw new ValidationException("An answer cannot be empty");
+			}
+			
+			security.setAnswer(security.getAnswer().trim());
+			
+			for (String question: previousQuestions) {
+				if (security.getQuestion().equalsIgnoreCase(question)) {
+					throw new ValidationException("Duplicate question");
+				}
+			}
+			
+			previousQuestions.add(security.getQuestion());
+		}
 	}
 }

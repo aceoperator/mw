@@ -23,9 +23,7 @@ public interface ClientService {
 
 	Success createClient(Client client);
 
-	Client getClientByUserId(String domain, String userId);
+	Client getClientByUserId(String userId);
 	
-	Client getClientById(long clientId);
-
 	Success modifyUser(Client client);
 }

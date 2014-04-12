@@ -22,9 +22,29 @@
 			<xs:element name="Phone1" type="xs:string" minOccurs="0" />
 			<xs:element name="Phone2" type="xs:string" minOccurs="0" />
 			
-			<xs:element name="Domain" type="Domain" maxOccurs="unbounded" />
+			<xs:element name="StreetAddress1" type="xs:string" minOccurs="0" />
+			<xs:element name="StreetAddress2" type="xs:string" minOccurs="0" />
+			<xs:element name="City" type="xs:string" minOccurs="0" />
+			<xs:element name="State" type="xs:string" minOccurs="0" />
+			<xs:element name="Country" type="xs:string" minOccurs="0" />
+			<xs:element name="PostalCode" type="xs:string" minOccurs="0" />
 			
-			<xs:element name="Property" type="Property" maxOccurs="unbounded" />
+			<xs:element name="DefaultDomainId" type="xs:long"  minOccurs="0" />
+			<xs:element name="DefaultDomainName" type="xs:string" minOccurs="0" />
+			
+			<xs:element name="Domain" type="Domain" minOccurs="0" maxOccurs="unbounded" />
+			
+			<xs:element name="Property" type="Property" minOccurs="0" maxOccurs="unbounded" />
+			
+			<xs:element name="SecurityQuestion" type="SecurityQuestion" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="SecurityQuestion">
+		<xs:sequence>
+			<xs:element name="ClientId" type="xs:long" />
+			<xs:element name="Question" type="xs:string" />
+			<xs:element name="Answer" type="xs:string" />
 		</xs:sequence>
 	</xs:complexType>
 	

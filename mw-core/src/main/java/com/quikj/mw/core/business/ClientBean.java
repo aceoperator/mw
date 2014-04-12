@@ -3,12 +3,15 @@
  */
 package com.quikj.mw.core.business;
 
+import java.util.List;
+
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.quikj.mw.core.value.Authentication;
 import com.quikj.mw.core.value.Client;
 import com.quikj.mw.core.value.Domain;
+import com.quikj.mw.core.value.SecurityQuestion;
 
 
 /**
@@ -32,7 +35,7 @@ public interface ClientBean {
 	void deleteClient(long clientId);
 
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
-	Client getClientByUserId(String userId, String domain);
+	Client getClientByUserId(String userId);
 
 	
 	@Transactional(propagation = Propagation.REQUIRED)
@@ -48,7 +51,7 @@ public interface ClientBean {
 	Domain getDomainByName(String domainName);
 
 	@Transactional(propagation = Propagation.REQUIRED)
-	void changePassword(String userId, String oldPassword, String newPassword);
+	void changeOwnPassword(String userId, String oldPassword, String newPassword);
 
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	Client getClientById(long clientId);
@@ -56,4 +59,14 @@ public interface ClientBean {
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	Authentication authenticateByEmail(String email, String domain,
 			String password);
+
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+	Domain getDomainById(long domainId);
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	void changePassword(String userId, String newPassword);
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	void setSecurityQuestions(String userId, String password,
+			List<SecurityQuestion> securityQuestions);
 }

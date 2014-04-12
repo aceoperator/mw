@@ -37,7 +37,7 @@ public class MiddlewareAuthenticationProvider implements AuthenticationProvider 
 		try {
 
 			String name = auth.getName();
-			String[] tokens = name.split("&");
+			String[] tokens = name.split("|");
 			String userName = tokens[0];
 			String domainName = ClientBean.DEFAULT_DOMAIN;
 			if (tokens.length > 1) {

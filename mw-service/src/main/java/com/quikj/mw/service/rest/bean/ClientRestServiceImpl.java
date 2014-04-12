@@ -39,7 +39,7 @@ public class ClientRestServiceImpl implements ClientService {
 			Principal principal,
 			@RequestParam(value = "oldPassword", required = true) String oldPassword,
 			@RequestParam(value = "newPassword", required = true) String newPassword) {
-		clientBean.changePassword(principal.getName(), oldPassword, newPassword);
+		clientBean.changeOwnPassword(principal.getName(), oldPassword, newPassword);
 		return new Success();
 	}
 
@@ -58,17 +58,11 @@ public class ClientRestServiceImpl implements ClientService {
 	}
 
 	@Override
-	@RequestMapping(value = "/{domain}/{userId}", method = RequestMethod.GET)
-	public Client getClientByUserId(@PathVariable String domain, @PathVariable String userId) {
-		return clientBean.getClientByUserId(userId, domain);
+	@RequestMapping(value = "/{userId}", method = RequestMethod.GET)
+	public Client getClientByUserId(@PathVariable String userId) {
+		return clientBean.getClientByUserId(userId);
 	}
 	
-	@Override
-	@RequestMapping(value = "/{clientId}", method = RequestMethod.GET)
-	public Client getClientById(@PathVariable long clientId) {
-		return clientBean.getClientById(clientId);
-	}
-
 	@Override
 	@RequestMapping(value = "", method = RequestMethod.PUT)
 	public Success modifyUser(@RequestBody Client client) {

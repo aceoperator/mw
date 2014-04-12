@@ -13,6 +13,7 @@ import com.quikj.mw.core.value.Authentication;
 import com.quikj.mw.core.value.Client;
 import com.quikj.mw.core.value.Domain;
 import com.quikj.mw.core.value.Role;
+import com.quikj.mw.core.value.SecurityQuestion;
 
 /**
  * @author amit
@@ -36,8 +37,7 @@ public interface ClientDao {
 
 	int deleteClient(long clientId);
 
-	Client getClientByUserId(@Param(value = "userId") String userId,
-			@Param(value = "domainName") String domainName);
+	Client getClientByUserId(String userId);
 
 	List<Domain> getClientDomains(long clientId);
 
@@ -68,8 +68,20 @@ public interface ClientDao {
 	void updateDomain(Domain domain);
 
 	Domain getDomainByName(String domainName);
+	
+	Domain getDomainById(long domainId);
 
-	int changePassword(@Param(value = "userId") String userId,
+	int changeOwnPassword(@Param(value = "userId") String userId,
 			@Param(value = "oldPassword") String oldPassword,
 			@Param(value = "newPassword") String newPassword);
+	
+	int changePassword(@Param(value = "userId") String userId,
+			@Param(value = "newPassword") String newPassword);
+
+	int clearSecurityQuestions(long clientId);
+
+	int createSecurityQuestion(SecurityQuestion question);
+	
+	Long getClientId(@Param(value = "userId") String userId,
+			@Param(value = "password") String password);
 }

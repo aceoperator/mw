@@ -15,6 +15,7 @@
 	<parameterMap type="com.quikj.mw.core.dao.value.ClientDomainRoleMap"
 		id="clientDomainRoleParam" />
 	<parameterMap type="com.quikj.mw.core.value.Domain" id="domainParam" />
+	<parameterMap type="com.quikj.mw.core.value.SecurityQuestion" id="securityQuestionParam" />
 
 	<select id="authenticate" statementType="PREPARED" resultMap="authenticationResult">
 		SELECT c.ID AS id, d.ID AS domainId, c.USERID AS userId, d.NAME AS domainName
@@ -49,9 +50,10 @@
 	<insert id="createClient" statementType="PREPARED" parameterMap="clientParam"
 		useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO MWC_CLIENT
-		(USERID, PASSWORD, FIRST_NAME, LAST_NAME, EMAIL, ADDITIONAL_INFO, PHONE_1, PHONE_2)
-		VALUES(#{userId}, PASSWORD(#{password}), #{firstName}, #{lastName}, #{email}, #{additionalInfo},
-		#{phone1}, #{phone2})
+		(USERID, PASSWORD, FIRST_NAME, LAST_NAME, EMAIL, ADDITIONAL_INFO, PHONE_1, PHONE_2, STREET_ADDRESS_1, STREET_ADDRESS_2, 
+			CITY, STATE, COUNTRY, POSTAL_CODE, DEFAULT_DOMAIN_ID)
+		VALUES(#{userId}, PASSWORD(#{password}), #{firstName}, #{lastName}, #{email}, #{additionalInfo}, #{phone1}, #{phone2}, 
+			 #{streetAddress1}, #{streetAddress2}, #{city}, #{state}, #{country}, #{postalCode}, #{defaultDomainId})
 	</insert>
 
 	<insert id="createClientDomainMap" statementType="PREPARED"
@@ -68,13 +70,13 @@
 	</delete>
 	
 	<select id="getClientByUserId" statementType="PREPARED" resultMap="clientResult">
-		SELECT c.ID AS id, c.USERID AS userId, c.FIRST_NAME AS firstName, c.LAST_NAME AS lastName, c.EMAIL AS email, 
-			c.ADDITIONAL_INFO AS additionalInfo, c.PHONE_1 AS phone1, c.PHONE_2 AS phone2
-		FROM MWC_CLIENT c, MWC_CLIENT_DOMAIN_MAP m, MWC_DOMAIN d
-		WHERE c.ID = m.CLIENT_ID
-			AND m.DOMAIN_ID = d.ID
-			AND c.USERID = #{userId}
-			AND d.NAME = #{domainName}
+		SELECT ID AS id, USERID AS userId, FIRST_NAME AS firstName, LAST_NAME AS lastName, EMAIL AS email, 
+			ADDITIONAL_INFO AS additionalInfo, PHONE_1 AS phone1, PHONE_2 AS phone2,
+			STREET_ADDRESS_1 AS streetAddress1, STREET_ADDRESS_2 AS streetAddress2, 
+			CITY AS city, STATE AS state, COUNTRY AS country, POSTAL_CODE AS postalCode, 
+			DEFAULT_DOMAIN_ID AS defaultDomainId
+		FROM MWC_CLIENT
+		WHERE USERID = #{userId}
 	</select>
 	
 	<select id="getClientDomains" statementType="PREPARED" resultMap="domainResult">
@@ -99,13 +101,19 @@
 	<update id="updateClient" statementType="PREPARED" parameterMap="clientParam">
 		UPDATE MWC_CLIENT 
 		SET FIRST_NAME = #{firstName}, LAST_NAME = #{lastName}, EMAIL = #{email}, 
-			ADDITIONAL_INFO = #{additionalInfo}, PHONE_1 = #{phone1}, PHONE_2 = #{phone2}
+			ADDITIONAL_INFO = #{additionalInfo}, PHONE_1 = #{phone1}, PHONE_2 = #{phone2},
+			STREET_ADDRESS_1 = #{streetAddress1}, STREET_ADDRESS_2 = #{streetAddress2}, 
+			CITY = #{city}, STATE = #{state}, COUNTRY = #{country}, POSTAL_CODE = #{postalCode},
+			DEFAULT_DOMAIN_ID = #{defaultDomainId}
 		WHERE ID = #{id}
 	</update>
 	
 	<select id="getClientById" statementType="PREPARED" resultMap="clientResult">
 		SELECT c.ID AS id, c.USERID AS userId, c.FIRST_NAME AS firstName, c.LAST_NAME AS lastName, c.EMAIL AS email, 
-			c.ADDITIONAL_INFO AS additionalInfo, c.PHONE_1 AS phone1, c.PHONE_2 AS phone2
+			c.ADDITIONAL_INFO AS additionalInfo, c.PHONE_1 AS phone1, c.PHONE_2 AS phone2,
+			STREET_ADDRESS_1 AS streetAddress1, STREET_ADDRESS_2 AS streetAddress2, 
+			CITY AS city, STATE AS state, COUNTRY AS country, POSTAL_CODE AS postalCode,
+			DEFAULT_DOMAIN_ID AS defaultDomainId
 		FROM MWC_CLIENT c
 		WHERE c.ID = #{clientId}
 	</select>
@@ -164,10 +172,38 @@
 		WHERE NAME = #{domainName}
 	</select>
 	
-	<update id="changePassword" statementType="PREPARED">
+	<select id="getDomainById" statementType="PREPARED" resultMap="domainResult">
+		SELECT ID AS id, NAME AS name, URL AS url
+		FROM MWC_DOMAIN 
+		WHERE ID = #{domainId}
+	</select>
+	
+	<update id="changeOwnPassword" statementType="PREPARED">
 		UPDATE MWC_CLIENT
 		SET PASSWORD = PASSWORD(#newPassword)
 		WHERE USERID = #{userId} AND PASSWORD = PASSWORD(#{oldPassword})
 	</update>
+	
+	<update id="changePassword" statementType="PREPARED">
+		UPDATE MWC_CLIENT
+		SET PASSWORD = PASSWORD(#newPassword)
+		WHERE USERID = #{userId})
+	</update>
+	
+	<select id="getClientId" statementType="PREPARED" resultType="java.lang.Long">
+		SELECT ID
+		FROM MWC_CLIENT 
+		WHERE USERID = #{userId} AND PASSWORD = PASSWORD(#{password})
+	</select>
+
+	<delete id="clearSecurityQuestions" statementType="PREPARED">
+		DELETE FROM MWC_SECURITY_QUESTION
+		WHERE CLIENT_ID = #{clientId}
+	</delete>
+	
+	<insert id="createSecurityQuestion" statementType="PREPARED" parameterMap="securityQuestionParam">
+		INSERT INTO MWC_SECURITY_QUESTION (CLIENT_ID, QUESTION, ANSWER)
+		VALUES (#{clientId}, #{question}, #{answer})
+	</insert>
 
 </mapper>

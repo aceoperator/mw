@@ -98,6 +98,12 @@ public class ClientBeanTest {
 		client.setPassword("A1b2c3d4");
 		client.setPhone1("9195551212");
 		client.setPhone2("8005551212");
+		client.setStreetAddress1("1000 Wall Street");
+		client.setStreetAddress2("Suite 202");
+		client.setCity("New York");
+		client.setState("New York");
+		client.setCountry("USA");
+		client.setPostalCode("12345-7890");
 
 		List<Role> roles = new ArrayList<Role>();
 		roles.add(new Role(0L, "ADMIN"));
@@ -112,9 +118,11 @@ public class ClientBeanTest {
 			domain2.getRoles().add(role);
 		}
 
+		client.setDefaultDomainName(domain1.getName());
+		
 		clientBean.createClient(client);
 
-		Client clientDb = clientBean.getClientByUserId("user1", "domain1");
+		Client clientDb = clientBean.getClientByUserId("user1");
 		assertNotNull(clientDb);
 		assertTrue(clientDb.getId() > 0L);
 		assertEquals(client.getUserId(), clientDb.getUserId());
@@ -125,6 +133,16 @@ public class ClientBeanTest {
 		assertEquals(client.getAdditionalInfo(), clientDb.getAdditionalInfo());
 		assertEquals(client.getPhone1(), clientDb.getPhone1());
 		assertEquals(client.getPhone2(), clientDb.getPhone2());
+		assertEquals(client.getStreetAddress1(), clientDb.getStreetAddress1());
+		assertEquals(client.getStreetAddress2(), clientDb.getStreetAddress2());
+		assertEquals(client.getCity(), clientDb.getCity());
+		assertEquals(client.getState(), clientDb.getState());
+		assertEquals(client.getCountry(), clientDb.getCountry());
+		assertEquals(client.getPostalCode(), clientDb.getPostalCode());
+		
+		assertEquals(domain1.getName(), client.getDefaultDomainName());
+		assertTrue(client.getDefaultDomainId() > 0L);
+		
 		assertEquals(2, clientDb.getDomains().size());
 
 		Collections.sort(clientDb.getDomains(), new Comparator<Domain>() {
@@ -179,6 +197,16 @@ public class ClientBeanTest {
 		assertEquals(client.getAdditionalInfo(), clientDb.getAdditionalInfo());
 		assertEquals(client.getPhone1(), clientDb.getPhone1());
 		assertEquals(client.getPhone2(), clientDb.getPhone2());
+		assertEquals(client.getStreetAddress1(), clientDb.getStreetAddress1());
+		assertEquals(client.getStreetAddress2(), clientDb.getStreetAddress2());
+		assertEquals(client.getCity(), clientDb.getCity());
+		assertEquals(client.getState(), clientDb.getState());
+		assertEquals(client.getCountry(), clientDb.getCountry());
+		assertEquals(client.getPostalCode(), clientDb.getPostalCode());
+		
+		assertEquals(domain1.getName(), client.getDefaultDomainName());
+		assertTrue(client.getDefaultDomainId() > 0L);
+		
 		assertEquals(2, clientDb.getDomains().size());
 
 		Collections.sort(clientDb.getDomains(), new Comparator<Domain>() {
@@ -255,14 +283,21 @@ public class ClientBeanTest {
 
 		client.setId(clientDb.getId());
 		client.setUserId("user2");
-		client.setFirstName("Test1");
-		client.setLastName("User1");
+		client.setFirstName("Test2");
+		client.setLastName("User2");
 		client.setEmail("user2@quik-j.com");
 		client.setAdditionalInfo("Additional Information 2");
 		client.setPassword("A1b2c3d4");
-		client.setPhone1("9105551212");
-		client.setPhone2("88885551212");
-
+		client.setPhone1("9105551214");
+		client.setPhone2("88885551214");
+		client.setStreetAddress1("100 Bond Street");
+		client.setStreetAddress2("Suite 2222");
+		client.setCity("Chicago");
+		client.setState("Illinois");
+		client.setCountry("USA");
+		client.setPostalCode("12346-7899");
+		
+		
 		// Add a new domain, remove the old domain, modify roles in an existing
 		// domain
 
@@ -283,6 +318,8 @@ public class ClientBeanTest {
 		domain2.getRoles().remove(0); // remove role admin
 		domain2.getRoles().add(new Role(0L, "USER"));
 
+		client.setDefaultDomainName(domain2.getName());
+		
 		clientBean.updateClient(client);
 
 		clientDb = clientBean.getClientById(clientDb.getId());
@@ -296,6 +333,16 @@ public class ClientBeanTest {
 		assertEquals(client.getAdditionalInfo(), clientDb.getAdditionalInfo());
 		assertEquals(client.getPhone1(), clientDb.getPhone1());
 		assertEquals(client.getPhone2(), clientDb.getPhone2());
+		assertEquals(client.getStreetAddress1(), clientDb.getStreetAddress1());
+		assertEquals(client.getStreetAddress2(), clientDb.getStreetAddress2());
+		assertEquals(client.getCity(), clientDb.getCity());
+		assertEquals(client.getState(), clientDb.getState());
+		assertEquals(client.getCountry(), clientDb.getCountry());
+		assertEquals(client.getPostalCode(), clientDb.getPostalCode());
+		
+		assertEquals(domain2.getName(), client.getDefaultDomainName());
+		assertTrue(client.getDefaultDomainId() > 0L);
+		
 		assertEquals(2, clientDb.getDomains().size());
 
 		Collections.sort(clientDb.getDomains(), new Comparator<Domain>() {
@@ -348,14 +395,24 @@ public class ClientBeanTest {
 
 	@Test
 	public void testValidations() {
+		Domain domain1 = new Domain(0L, "domain1", "http://www.quik-j.com", null);
+		clientBean.createDomain(domain1);
+		
+		Domain domain2 = new Domain(0L, "domain2", "http://www.cafesip.org", null);
+		clientBean.createDomain(domain2);
+		
 		Client client = new Client();
 		
 		client.setFirstName("Test1");
 		client.setLastName("User1");
 		client.setAdditionalInfo("Additional Information 2");
 		client.setPassword("badpassword");
-		client.setPhone1("9105551212");
-		client.setPhone2("88885551212");
+		client.setPhone1("1-9105551212A");
+		client.setPhone2("1-9105551212A");
+
+		client.getDomains().add(domain1);
+		
+		client.setDefaultDomainName("bogus");
 		
 		try {
 			clientBean.createClient(client);
@@ -392,7 +449,49 @@ public class ClientBeanTest {
 			// Expected
 		}
 		
+		try {
+			clientBean.createClient(client);
+			fail();
+		} catch (ValidationException e) {
+			// Expected
+		}
+		
 		client.setPassword("A1b2c3d4");
+		
+		try {
+			clientBean.createClient(client);
+			fail();
+		} catch (ValidationException e) {
+			// Expected
+		}
+		
+		client.setDefaultDomainName(domain2.getName());
+		
+		try {
+			clientBean.createClient(client);
+			fail();
+		} catch (ValidationException e) {
+			// Expected
+		}
+		
+		client.setDefaultDomainName(domain1.getName());
+		try {
+			clientBean.createClient(client);
+			fail();
+		} catch (ValidationException e) {
+			// Expected
+		}
+		
+		client.setPhone1("1-800-555-1212");
+		client.setPhone2("1-800-555-1212");
+		try {
+			clientBean.createClient(client);
+			fail();
+		} catch (ValidationException e) {
+			// Expected
+		}
+		
+		client.setPhone2("1-800-555-1213");
 		clientBean.createClient(client);
 	}
 }
