@@ -86,4 +86,8 @@ public interface ClientDao {
 			@Param(value = "password") String password);
 
 	List<SecurityQuestion> getSecurityQuestions(String userId);
+
+	List<SecurityQuestion> getSecurityQuestionsByEmail(String email);
+
+	Client getClientByEmail(String email);
 }

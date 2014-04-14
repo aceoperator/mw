@@ -98,7 +98,7 @@ public class MailBeanTest {
 		assertTrue(email.getBody().contains("world"));
 	}
 
-	public SmtpMessage getLastMessage() {
+	private SmtpMessage getLastMessage() {
 		SmtpMessage ret = null;
 		Iterator<?> iter = smtpServer.getReceivedEmail();
 		while (iter.hasNext()) {

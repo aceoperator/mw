@@ -10,11 +10,18 @@
 
 	<security:http pattern="/jcaptcha" security="none" />
 
-	<security:http auto-config="true">
+	<security:http auto-config="true"
+		security-context-repository-ref="sessionSecurityContextRepository" >
+				<security:intercept-url pattern="/rest/client/login"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />		
 		<security:intercept-url pattern="/**"
 			access="IS_AUTHENTICATED_FULLY" />
 		<security:http-basic />
 	</security:http>
+
+	<!-- This needs to change to a distributed cache (example: memcached) if we want to use a clustered servlet containers -->
+	<bean id="sessionSecurityContextRepository"
+		class="org.springframework.security.web.context.HttpSessionSecurityContextRepository" />
 
 	<bean id="mwAuthenticationProvider"
 		class="com.quikj.mw.service.framework.MiddlewareAuthenticationProvider">
@@ -22,7 +29,8 @@
 	</bean>
 
 	<security:authentication-manager alias="authManager">
-		<security:authentication-provider ref="mwAuthenticationProvider" />				
+		<security:authentication-provider
+			ref="mwAuthenticationProvider" />
 	</security:authentication-manager>
 
 </beans>

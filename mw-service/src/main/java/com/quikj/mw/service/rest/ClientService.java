@@ -7,6 +7,7 @@ package com.quikj.mw.service.rest;
 import java.security.Principal;
 
 import com.quikj.mw.core.value.Client;
+import com.quikj.mw.core.value.SecurityQuestions;
 import com.quikj.mw.core.value.Success;
 
 
@@ -26,4 +27,8 @@ public interface ClientService {
 	Client getClientByUserId(String userId);
 	
 	Success modifyUser(Client client);
+
+	Success login(String identifier, String password);
+
+	Success resetPassword(String identifier, SecurityQuestions questions);
 }

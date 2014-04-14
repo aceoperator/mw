@@ -4,7 +4,9 @@
 package com.quikj.mw.core.business.bean;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.security.RolesAllowed;
@@ -13,6 +15,7 @@ import com.quikj.mw.core.MiddlewareCoreException;
 import com.quikj.mw.core.MiddlewareSecurityException;
 import com.quikj.mw.core.ValidationException;
 import com.quikj.mw.core.business.ClientBean;
+import com.quikj.mw.core.business.MailBean;
 import com.quikj.mw.core.dao.ClientDao;
 import com.quikj.mw.core.dao.value.ClientDomainMap;
 import com.quikj.mw.core.dao.value.ClientDomainRoleMap;
@@ -31,6 +34,11 @@ public class ClientBeanImpl implements ClientBean {
 
 	private ClientDao clientDao;
 	private int minimumSecurityQuestions = 3;
+	private MailBean mailBean;
+
+	public void setMailBean(MailBean mailBean) {
+		this.mailBean = mailBean;
+	}
 
 	public void setMinimumSecurityQuestions(int minimumSecurityQuestions) {
 		this.minimumSecurityQuestions = minimumSecurityQuestions;
@@ -45,7 +53,8 @@ public class ClientBeanImpl implements ClientBean {
 			String password) {
 
 		if (domain == null) {
-			domain = ClientBean.DEFAULT_DOMAIN;
+			Client client = clientDao.getClientByUserId(userId);
+			domain = getDefaultDomain(client);
 		}
 
 		Authentication client = clientDao
@@ -66,7 +75,8 @@ public class ClientBeanImpl implements ClientBean {
 			String password) {
 
 		if (domain == null) {
-			domain = ClientBean.DEFAULT_DOMAIN;
+			Client client = clientDao.getClientByEmail(email);
+			domain = getDefaultDomain(client);
 		}
 
 		Authentication client = clientDao.authenticateByEmail(email, domain,
@@ -80,6 +90,22 @@ public class ClientBeanImpl implements ClientBean {
 		client.setRoles(roles);
 
 		return client;
+	}
+
+	private String getDefaultDomain(Client client) {
+		String domain;
+		if (client == null) {
+			throw new MiddlewareSecurityException("Authentication failed");
+		}
+
+		if (client.getDefaultDomainId() != null
+				&& client.getDefaultDomainId() > 0L) {
+			Domain d = clientDao.getDomainById(client.getDefaultDomainId());
+			domain = d.getName();
+		} else {
+			domain = ClientBean.DEFAULT_DOMAIN;
+		}
+		return domain;
 	}
 
 	@Override
@@ -443,7 +469,7 @@ public class ClientBeanImpl implements ClientBean {
 				throw new ValidationException("The phone numbers are the same");
 			}
 		}
-		
+
 		if (createOperation && !client.getSecurityQuestions().isEmpty()) {
 			validateSecurityQuestions(client.getSecurityQuestions());
 		}
@@ -480,49 +506,97 @@ public class ClientBeanImpl implements ClientBean {
 			previousQuestions.add(security.getQuestion());
 		}
 	}
-	
+
 	@Override
-	public String resetPassword(String userId, List<SecurityQuestion> questions) {		
-		List<SecurityQuestion> security = clientDao.getSecurityQuestions(userId);
+	public String resetPassword(String userId, List<SecurityQuestion> questions) {
+		List<SecurityQuestion> security = clientDao
+				.getSecurityQuestions(userId);
 		if (security == null || security.isEmpty()) {
-			throw new MiddlewareSecurityException("The account has been configured without any security questions");
+			throw new MiddlewareSecurityException(
+					"The account has been configured without any security questions");
 		}
-		
+
 		if (questions.size() != security.size()) {
-			throw new MiddlewareSecurityException("Not all questions have answers");
+			throw new MiddlewareSecurityException(
+					"Not all questions have answers");
 		}
-		
+
 		for (SecurityQuestion element : security) {
-			SecurityQuestion foundQuestion = findSecurityQuestionElement(element.getQuestion(), questions);
+			SecurityQuestion foundQuestion = findSecurityQuestionElement(
+					element.getQuestion(), questions);
 			if (foundQuestion == null) {
 				throw new MiddlewareSecurityException("Question not found");
 			}
-			
-			if (!element.getAnswer().equalsIgnoreCase(foundQuestion.getAnswer())) {
+
+			if (!element.getAnswer()
+					.equalsIgnoreCase(foundQuestion.getAnswer())) {
 				throw new MiddlewareSecurityException("An answer did not match");
 			}
-		}		
-		
+		}
+
 		String newPassword = generateNewPassword();
-		
+
 		clientDao.changePassword(userId, newPassword);
+
+		Client client = clientDao.getClientByUserId(userId);
+
+		Map<String, Object> properties = new HashMap<String, Object>();
+		properties.put("newPassword", newPassword);
+		properties.put("client", client);
+		mailBean.sendMessage(new String[] { client.getEmail() }, null, null,
+				null, "Your password has been reset",
+				"template:password_changed", true, null, null, properties);
+
 		return newPassword;
 	}
-	
-	private String generateNewPassword() {		
+
+	private String generateNewPassword() {
 		UUID uuid = UUID.randomUUID();
-		String password = uuid.toString().replaceAll("-", "").substring(0, 8); 
+		String password = uuid.toString().replaceAll("-", "").substring(0, 8);
 		return password;
 	}
-	
-	private SecurityQuestion findSecurityQuestionElement(String question, List<SecurityQuestion> questions) {
-		
-		for (SecurityQuestion element: questions) {
+
+	private SecurityQuestion findSecurityQuestionElement(String question,
+			List<SecurityQuestion> questions) {
+
+		for (SecurityQuestion element : questions) {
 			if (element.getQuestion().equalsIgnoreCase(question)) {
 				return element;
 			}
 		}
-		
+
 		return null;
+	}
+
+	@Override
+	public List<SecurityQuestion> getSecurityQuestions(String userId) {
+		List<SecurityQuestion> questions = clientDao
+				.getSecurityQuestions(userId);
+		if (questions == null) {
+			throw new MiddlewareCoreException("The user does not exist");
+		}
+
+		clearAnswers(questions);
+
+		return questions;
+	}
+
+	private void clearAnswers(List<SecurityQuestion> questions) {
+		for (SecurityQuestion question : questions) {
+			question.setAnswer(null);
+		}
+	}
+
+	@Override
+	public List<SecurityQuestion> getSecurityQuestionsByEmail(String email) {
+		List<SecurityQuestion> questions = clientDao
+				.getSecurityQuestionsByEmail(email);
+		if (questions == null) {
+			throw new MiddlewareCoreException("The user does not exist");
+		}
+
+		clearAnswers(questions);
+
+		return questions;
 	}
 }

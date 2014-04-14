@@ -80,6 +80,16 @@
 		WHERE USERID = #{userId}
 	</select>
 	
+	<select id="getClientByEmail" statementType="PREPARED" resultMap="clientResult">
+		SELECT ID AS id, USERID AS userId, FIRST_NAME AS firstName, LAST_NAME AS lastName, EMAIL AS email, 
+			ADDITIONAL_INFO AS additionalInfo, PHONE_1 AS phone1, PHONE_2 AS phone2,
+			STREET_ADDRESS_1 AS streetAddress1, STREET_ADDRESS_2 AS streetAddress2, 
+			CITY AS city, STATE AS state, COUNTRY AS country, POSTAL_CODE AS postalCode, 
+			DEFAULT_DOMAIN_ID AS defaultDomainId
+		FROM MWC_CLIENT
+		WHERE EMAIL = #{email}
+	</select>
+	
 	<select id="getClientDomains" statementType="PREPARED" resultMap="domainResult">
 		SELECT d.ID AS id, d.NAME AS name,d.URL AS url 
 		FROM MWC_CLIENT c, MWC_CLIENT_DOMAIN_MAP m, MWC_DOMAIN d
@@ -212,6 +222,13 @@
 		FROM MWC_SECURITY_QUESTION s, MWC_CLIENT c
 		WHERE s.CLIENT_ID = c.ID
 			AND c.USERID = #{userId}
+	</select>
+	
+	<select id="getSecurityQuestionsByEmail" statementType="PREPARED" resultMap="securityQuestionResult">
+		SELECT s.QUESTION AS question, s.ANSWER AS answer
+		FROM MWC_SECURITY_QUESTION s, MWC_CLIENT c
+		WHERE s.CLIENT_ID = c.ID
+			AND c.EMAIL = #{email}
 	</select>
 
 </mapper>
