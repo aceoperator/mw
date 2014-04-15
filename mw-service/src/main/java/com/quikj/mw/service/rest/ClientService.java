@@ -26,9 +26,14 @@ public interface ClientService {
 
 	Client getClientByUserId(String userId);
 	
-	Success modifyUser(Client client);
+	Success modifyClient(Client client);
 
 	Success login(String identifier, String password);
 
 	Success resetPassword(String identifier, SecurityQuestions questions);
+
+	SecurityQuestions getSecurityQuestions(String identifier);
+
+	Success resetSecurityQuestions(String identifier, String password,
+			SecurityQuestions questions);
 }

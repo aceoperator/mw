@@ -95,7 +95,7 @@ public class ClientBeanImpl implements ClientBean {
 	private String getDefaultDomain(Client client) {
 		String domain;
 		if (client == null) {
-			throw new MiddlewareSecurityException("Authentication failed");
+			throw new MiddlewareCoreException("User not found");
 		}
 
 		if (client.getDefaultDomainId() != null
@@ -122,8 +122,8 @@ public class ClientBeanImpl implements ClientBean {
 		clientDao.createClient(client);
 
 		if (!client.getSecurityQuestions().isEmpty()) {
-			setSecurityQuestions(client.getUserId(), client.getPassword(),
-					client.getSecurityQuestions());
+			setSecurityQuestionsByUserId(client.getUserId(),
+					client.getPassword(), client.getSecurityQuestions());
 		}
 
 		for (Domain domain : client.getDomains()) {
@@ -404,7 +404,7 @@ public class ClientBeanImpl implements ClientBean {
 		newPassword = Validator.validatePassword(newPassword);
 		int affected = clientDao.changePassword(userId, newPassword);
 		if (affected == 0) {
-			throw new MiddlewareSecurityException(
+			throw new MiddlewareCoreException(
 					"The password change failed because the user name is incorrect");
 		}
 	}
@@ -422,19 +422,45 @@ public class ClientBeanImpl implements ClientBean {
 	}
 
 	@Override
-	public void resetSecurityQuestions(String userId, String password,
+	public void resetSecurityQuestionsByUserId(String userId, String password,
 			List<SecurityQuestion> securityQuestions) {
 		validateSecurityQuestions(securityQuestions);
-		setSecurityQuestions(userId, password, securityQuestions);
+		setSecurityQuestionsByUserId(userId, password, securityQuestions);
 	}
 
-	private void setSecurityQuestions(String userId, String password,
+	@Override
+	public void resetSecurityQuestionsByEmail(String email, String password,
 			List<SecurityQuestion> securityQuestions) {
-		Long clientId = clientDao.getClientId(userId, password);
+		validateSecurityQuestions(securityQuestions);
+		setSecurityQuestionsByEmail(email, password, securityQuestions);
+	}
+
+	private void setSecurityQuestionsByEmail(String email, String password,
+			List<SecurityQuestion> securityQuestions) {
+		Long clientId = clientDao.getClientIdByEmail(email, password);
 		if (clientId == null) {
-			throw new MiddlewareSecurityException("Authentication failed");
+			throw new MiddlewareCoreException("User not found");
 		}
 
+		clearSecurityQuestions(securityQuestions, clientId);
+	}
+
+	private void setSecurityQuestionsByUserId(String userId, String password,
+			List<SecurityQuestion> securityQuestions) {
+		Long clientId = clientDao.getClientIdByUserId(userId, password);
+		if (clientId == null) {
+			throw new MiddlewareCoreException("User not found");
+		}
+
+		clearSecurityQuestions(securityQuestions, clientId);
+	}
+
+	/**
+	 * @param securityQuestions
+	 * @param clientId
+	 */
+	private void clearSecurityQuestions(
+			List<SecurityQuestion> securityQuestions, Long clientId) {
 		// Remove the previous questions set by this user
 		clientDao.clearSecurityQuestions(clientId);
 
@@ -508,24 +534,48 @@ public class ClientBeanImpl implements ClientBean {
 	}
 
 	@Override
-	public String resetPassword(String userId, List<SecurityQuestion> questions) {
+	public String resetPasswordByUserId(String userId,
+			List<SecurityQuestion> questions) {
+		Client client = clientDao.getClientByUserId(userId);
+		if (client == null) {
+			throw new ValidationException("User not found");
+		}
+
 		List<SecurityQuestion> security = clientDao
 				.getSecurityQuestions(userId);
-		if (security == null || security.isEmpty()) {
-			throw new MiddlewareSecurityException(
+
+		return resetPassword(client, questions, security);
+	}
+
+	@Override
+	public String resetPasswordByEmail(String email,
+			List<SecurityQuestion> questions) {
+		Client client = clientDao.getClientByEmail(email);
+		if (client == null) {
+			throw new ValidationException("User not found");
+		}
+
+		List<SecurityQuestion> security = clientDao
+				.getSecurityQuestionsByEmail(email);
+		return resetPassword(client, questions, security);
+	}
+
+	private String resetPassword(Client client,
+			List<SecurityQuestion> questions, List<SecurityQuestion> dbQuestions) {
+		if (dbQuestions == null || dbQuestions.isEmpty()) {
+			throw new ValidationException(
 					"The account has been configured without any security questions");
 		}
 
-		if (questions.size() != security.size()) {
-			throw new MiddlewareSecurityException(
-					"Not all questions have answers");
+		if (questions.size() != dbQuestions.size()) {
+			throw new ValidationException("Not all questions have answers");
 		}
 
-		for (SecurityQuestion element : security) {
+		for (SecurityQuestion element : dbQuestions) {
 			SecurityQuestion foundQuestion = findSecurityQuestionElement(
 					element.getQuestion(), questions);
 			if (foundQuestion == null) {
-				throw new MiddlewareSecurityException("Question not found");
+				throw new ValidationException("Question not found");
 			}
 
 			if (!element.getAnswer()
@@ -536,9 +586,7 @@ public class ClientBeanImpl implements ClientBean {
 
 		String newPassword = generateNewPassword();
 
-		clientDao.changePassword(userId, newPassword);
-
-		Client client = clientDao.getClientByUserId(userId);
+		clientDao.changePassword(client.getUserId(), newPassword);
 
 		Map<String, Object> properties = new HashMap<String, Object>();
 		properties.put("newPassword", newPassword);
@@ -546,7 +594,6 @@ public class ClientBeanImpl implements ClientBean {
 		mailBean.sendMessage(new String[] { client.getEmail() }, null, null,
 				null, "Your password has been reset",
 				"template:password_changed", true, null, null, properties);
-
 		return newPassword;
 	}
 
@@ -569,34 +616,29 @@ public class ClientBeanImpl implements ClientBean {
 	}
 
 	@Override
-	public List<SecurityQuestion> getSecurityQuestions(String userId) {
+	public List<SecurityQuestion> getSecurityQuestionsByUserId(String userId) {
 		List<SecurityQuestion> questions = clientDao
 				.getSecurityQuestions(userId);
+		return getSecurityQuestions(questions);
+	}
+
+	private List<SecurityQuestion> getSecurityQuestions(
+			List<SecurityQuestion> questions) {
 		if (questions == null) {
 			throw new MiddlewareCoreException("The user does not exist");
 		}
 
-		clearAnswers(questions);
-
-		return questions;
-	}
-
-	private void clearAnswers(List<SecurityQuestion> questions) {
 		for (SecurityQuestion question : questions) {
 			question.setAnswer(null);
 		}
+
+		return questions;
 	}
 
 	@Override
 	public List<SecurityQuestion> getSecurityQuestionsByEmail(String email) {
 		List<SecurityQuestion> questions = clientDao
 				.getSecurityQuestionsByEmail(email);
-		if (questions == null) {
-			throw new MiddlewareCoreException("The user does not exist");
-		}
-
-		clearAnswers(questions);
-
-		return questions;
+		return getSecurityQuestions(questions);
 	}
 }

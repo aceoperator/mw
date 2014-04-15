@@ -5,6 +5,7 @@
 package com.quikj.mw.service.rest.bean;
 
 import java.security.Principal;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.quikj.mw.core.business.ClientBean;
 import com.quikj.mw.core.value.Client;
+import com.quikj.mw.core.value.Domain;
+import com.quikj.mw.core.value.SecurityQuestion;
 import com.quikj.mw.core.value.SecurityQuestions;
 import com.quikj.mw.core.value.Success;
 import com.quikj.mw.service.rest.ClientService;
@@ -37,8 +40,7 @@ public class ClientRestServiceImpl implements ClientService {
 	@Autowired
 	private AuthenticationManager authManager;
 
-	public void setAuthManager(
-			AuthenticationManager authManager) {
+	public void setAuthManager(AuthenticationManager authManager) {
 		this.authManager = authManager;
 	}
 
@@ -79,13 +81,13 @@ public class ClientRestServiceImpl implements ClientService {
 
 	@Override
 	@RequestMapping(value = "", method = RequestMethod.PUT)
-	public Success modifyUser(@RequestBody Client client) {
+	public Success modifyClient(@RequestBody Client client) {
 		clientBean.updateClient(client);
 		return new Success();
 	}
 
 	@Override
-	@RequestMapping(value="/login", method = RequestMethod.POST)
+	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public Success login(@RequestParam("identifier") String identifier,
 			@RequestParam("password") String password) {
 
@@ -96,15 +98,47 @@ public class ClientRestServiceImpl implements ClientService {
 		SecurityContextHolder.getContext().setAuthentication(auth);
 		return new Success();
 	}
-	
+
 	@Override
-	@RequestMapping(value="/reset/{identifier}", method = RequestMethod.POST)
-	public Success resetPassword(@PathVariable String identifier, @RequestBody SecurityQuestions questions) {
+	@RequestMapping(value = "/reset/{identifier}", method = RequestMethod.POST)
+	public Success resetPassword(@PathVariable String identifier,
+			@RequestBody SecurityQuestions questions) {
 		if (identifier.contains("@")) {
-			// TODO
+			clientBean.resetPasswordByEmail(identifier,
+					questions.getSecurityQuestions());
+		} else {
+			clientBean.resetPasswordByUserId(identifier,
+					questions.getSecurityQuestions());
 		}
-		
-		// TODO
-		return null;
+		return new Success();
+	}
+
+	@Override
+	@RequestMapping(value = "/questions/{identifier}", method = RequestMethod.GET)
+	public SecurityQuestions getSecurityQuestions(
+			@PathVariable String identifier) {
+		List<SecurityQuestion> questions;
+		if (identifier.contains("@")) {
+			questions = clientBean.getSecurityQuestionsByEmail(identifier);
+		} else {
+			questions = clientBean.getSecurityQuestionsByUserId(identifier);
+		}
+
+		return new SecurityQuestions(questions);
+	}
+
+	@Override
+	@RequestMapping(value = "/questions/{identifier}", method = RequestMethod.PUT)
+	public Success resetSecurityQuestions(@PathVariable String identifier,
+			@RequestParam("password") String password, @RequestBody SecurityQuestions questions) {
+		if (identifier.contains("@")) {
+			clientBean.resetSecurityQuestionsByEmail(identifier, password,
+					questions.getSecurityQuestions());
+		} else {
+			clientBean.resetSecurityQuestionsByUserId(identifier, password,
+					questions.getSecurityQuestions());
+		}
+
+		return new Success();
 	}
 }

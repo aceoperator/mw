@@ -66,15 +66,22 @@ public interface ClientBean {
 	void changePassword(String userId, String newPassword);
 
 	@Transactional(propagation = Propagation.REQUIRED)
-	void resetSecurityQuestions(String userId, String password,
+	void resetSecurityQuestionsByUserId(String userId, String password,
 			List<SecurityQuestion> securityQuestions);
 
 	@Transactional(propagation = Propagation.REQUIRED)
-	String resetPassword(String userId, List<SecurityQuestion> questions);
+	String resetPasswordByUserId(String userId, List<SecurityQuestion> questions);
 
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
-	List<SecurityQuestion> getSecurityQuestions(String userId);
+	List<SecurityQuestion> getSecurityQuestionsByUserId(String userId);
 
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	List<SecurityQuestion> getSecurityQuestionsByEmail(String email);
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	String resetPasswordByEmail(String email, List<SecurityQuestion> questions);
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	void resetSecurityQuestionsByEmail(String email, String password,
+			List<SecurityQuestion> securityQuestions);
 }

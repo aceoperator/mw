@@ -7,7 +7,7 @@
 	
 	<xs:complexType name="SecurityQuestions">
 		<xs:sequence>
-			<xs:element name="SecurityQuestion" type="SecurityQuestion" />
+			<xs:element name="SecurityQuestion" type="SecurityQuestion" maxOccurs="unbounded" />
 		</xs:sequence>
 	</xs:complexType>
 	

@@ -49,7 +49,7 @@ import com.quikj.mw.core.value.SecurityQuestion;
 public class ClientBeanTest {
 
 	private static SimpleSmtpServer smtpServer;
-	
+
 	@Autowired
 	private ClientBean clientBean;
 
@@ -59,7 +59,7 @@ public class ClientBeanTest {
 
 	public ClientBeanTest() {
 	}
-	
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		smtpServer = SimpleSmtpServer.start();
@@ -138,6 +138,10 @@ public class ClientBeanTest {
 
 		client.setDefaultDomainName(domain1.getName());
 
+		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q1", "a1"));
+		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q2", "a2"));
+		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q3", "a3"));
+
 		clientBean.createClient(client);
 
 		Client clientDb = clientBean.getClientByUserId("user1");
@@ -204,6 +208,8 @@ public class ClientBeanTest {
 		assertEquals(roles.get(1).getName(), clientDb.getDomains().get(1)
 				.getRoles().get(1).getName());
 
+		assertEquals(0, clientDb.getSecurityQuestions().size());
+
 		clientDb = clientBean.getClientById(clientDb.getId());
 		assertNotNull(clientDb);
 		assertTrue(clientDb.getId() > 0L);
@@ -268,6 +274,7 @@ public class ClientBeanTest {
 		assertEquals(roles.get(1).getName(), clientDb.getDomains().get(1)
 				.getRoles().get(1).getName());
 
+		assertEquals(0, clientDb.getSecurityQuestions().size());
 		// Now to the update operations
 
 		client.setId(clientDb.getId());
@@ -503,8 +510,9 @@ public class ClientBeanTest {
 		client.getSecurityQuestions().get(1).setQuestion("q2");
 
 		clientBean.createClient(client);
-		
-		Authentication auth = clientBean.authenticate("user2", "domain1", client.getPassword());
+
+		Authentication auth = clientBean.authenticate("user2", "domain1",
+				client.getPassword());
 		assertNotNull(auth);
 
 		client.getSecurityQuestions().clear();
@@ -512,8 +520,8 @@ public class ClientBeanTest {
 		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q1", "a5"));
 
 		try {
-			clientBean.resetSecurityQuestions("user2", client.getPassword(),
-					client.getSecurityQuestions());
+			clientBean.resetSecurityQuestionsByUserId("user2",
+					client.getPassword(), client.getSecurityQuestions());
 			fail();
 		} catch (ValidationException e) {
 			// Expected
@@ -521,8 +529,8 @@ public class ClientBeanTest {
 
 		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q3", "a6"));
 		try {
-			clientBean.resetSecurityQuestions("user2", client.getPassword(),
-					client.getSecurityQuestions());
+			clientBean.resetSecurityQuestionsByUserId("user2",
+					client.getPassword(), client.getSecurityQuestions());
 			fail();
 		} catch (ValidationException e) {
 			// Expected
@@ -530,8 +538,8 @@ public class ClientBeanTest {
 
 		client.getSecurityQuestions().get(1).setQuestion("q2");
 
-		clientBean.resetSecurityQuestions("user2", client.getPassword(),
-				client.getSecurityQuestions());
+		clientBean.resetSecurityQuestionsByUserId("user2",
+				client.getPassword(), client.getSecurityQuestions());
 	}
 
 	@Test
@@ -599,9 +607,9 @@ public class ClientBeanTest {
 				return o1.compareTo(o2);
 			}
 		});
-		
-		auth = clientBean.authenticateByEmail(
-				"user1@quik-j.com", null, "A1b2c3d4");
+
+		auth = clientBean.authenticateByEmail("user1@quik-j.com", null,
+				"A1b2c3d4");
 		assertNotNull(auth);
 		assertEquals(clientDb.getId(), auth.getId());
 		assertEquals(clientDb.getUserId(), auth.getUserId());
@@ -618,7 +626,7 @@ public class ClientBeanTest {
 
 		assertEquals(roles.get(0).getName(), auth.getRoles().get(0));
 		assertEquals(roles.get(1).getName(), auth.getRoles().get(1));
-		
+
 		auth = clientBean.authenticate("user1", "domain1", "A1b2c3d4");
 		assertNotNull(auth);
 		assertEquals(clientDb.getId(), auth.getId());
@@ -636,7 +644,7 @@ public class ClientBeanTest {
 
 		assertEquals(roles.get(0).getName(), auth.getRoles().get(0));
 		assertEquals(roles.get(1).getName(), auth.getRoles().get(1));
-		
+
 		auth = clientBean.authenticate("user1", null, "A1b2c3d4");
 		assertNotNull(auth);
 		assertEquals(clientDb.getId(), auth.getId());
@@ -668,22 +676,22 @@ public class ClientBeanTest {
 		assertEquals(clientDb.getId(), auth.getId());
 
 		// Verify password reset
-		String newPassword = clientBean.resetPassword("user1",
+		String newPassword = clientBean.resetPasswordByUserId("user1",
 				client.getSecurityQuestions());
 		assertNotNull(newPassword);
 		assertTrue(newPassword.indexOf('-') == -1);
 
 		assertEquals(1, smtpServer.getReceivedEmailSize());
-		
+
 		Iterator<?> iter = smtpServer.getReceivedEmail();
 		SmtpMessage message = (SmtpMessage) iter.next();
-		
+
 		String[] to = message.getHeaderValues("To");
 		assertEquals(1, to.length);
 		assertEquals(client.getEmail(), to[0]);
-		
+
 		assertTrue(!message.getBody().contains("${"));
-		
+
 		auth = clientBean.authenticate("user1", "domain1", newPassword);
 		assertNotNull(auth);
 		assertEquals(clientDb.getId(), auth.getId());
@@ -694,10 +702,18 @@ public class ClientBeanTest {
 		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q5", "a5"));
 		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q6", "a6"));
 
-		clientBean.resetSecurityQuestions("user1", newPassword,
+		clientBean.resetSecurityQuestionsByUserId("user1", newPassword,
 				client.getSecurityQuestions());
 
-		newPassword = clientBean.resetPassword("user1",
+		client.getSecurityQuestions().clear();
+		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q7", "a7"));
+		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q8", "a8"));
+		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q9", "a9"));
+
+		clientBean.resetSecurityQuestionsByEmail(client.getEmail(), newPassword,
+				client.getSecurityQuestions());
+
+		newPassword = clientBean.resetPasswordByEmail(client.getEmail(),
 				client.getSecurityQuestions());
 		assertNotNull(newPassword);
 		assertTrue(newPassword.indexOf('-') == -1);
@@ -705,20 +721,21 @@ public class ClientBeanTest {
 		auth = clientBean.authenticate("user1", "domain1", newPassword);
 		assertNotNull(auth);
 		assertEquals(clientDb.getId(), auth.getId());
-		
-		List<SecurityQuestion> questions = clientBean.getSecurityQuestions("user1");
+
+		List<SecurityQuestion> questions = clientBean
+				.getSecurityQuestionsByUserId("user1");
 		assertNotNull(questions);
 		assertEquals(3, questions.size());
-		
-		for (SecurityQuestion question: questions) {
+
+		for (SecurityQuestion question : questions) {
 			assertNull(question.getAnswer());
 		}
-		
+
 		questions = clientBean.getSecurityQuestionsByEmail("user1@quik-j.com");
 		assertNotNull(questions);
 		assertEquals(3, questions.size());
-		
-		for (SecurityQuestion question: questions) {
+
+		for (SecurityQuestion question : questions) {
 			assertNull(question.getAnswer());
 		}
 	}

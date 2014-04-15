@@ -201,10 +201,16 @@
 		WHERE USERID = #{userId}
 	</update>
 	
-	<select id="getClientId" statementType="PREPARED" resultType="java.lang.Long">
+	<select id="getClientIdByUserId" statementType="PREPARED" resultType="java.lang.Long">
 		SELECT ID
 		FROM MWC_CLIENT 
 		WHERE USERID = #{userId} AND PASSWORD = PASSWORD(#{password})
+	</select>
+	
+	<select id="getClientIdByEmail" statementType="PREPARED" resultType="java.lang.Long">
+		SELECT ID
+		FROM MWC_CLIENT 
+		WHERE EMAIL = #{email} AND PASSWORD = PASSWORD(#{password})
 	</select>
 
 	<delete id="clearSecurityQuestions" statementType="PREPARED">

@@ -23,7 +23,7 @@ public interface ClientDao {
 	Authentication authenticate(@Param(value = "userId") String userId,
 			@Param(value = "domain") String domain,
 			@Param(value = "password") String password);
-	
+
 	Authentication authenticateByEmail(@Param(value = "email") String email,
 			@Param(value = "domain") String domain,
 			@Param(value = "password") String password);
@@ -52,7 +52,7 @@ public interface ClientDao {
 			@Param(value = "domainName") String domainName);
 
 	int createClientDomainRoleMap(ClientDomainRoleMap map);
-	
+
 	void createClientDomainRoleMap2(@Param(value = "clientId") long clientId,
 			@Param(value = "domainId") long domainId,
 			@Param(value = "roleName") String roleName);
@@ -68,21 +68,21 @@ public interface ClientDao {
 	void updateDomain(Domain domain);
 
 	Domain getDomainByName(String domainName);
-	
+
 	Domain getDomainById(long domainId);
 
 	int changeOwnPassword(@Param(value = "userId") String userId,
 			@Param(value = "oldPassword") String oldPassword,
 			@Param(value = "newPassword") String newPassword);
-	
+
 	int changePassword(@Param(value = "userId") String userId,
 			@Param(value = "newPassword") String newPassword);
 
 	int clearSecurityQuestions(long clientId);
 
 	int createSecurityQuestion(SecurityQuestion question);
-	
-	Long getClientId(@Param(value = "userId") String userId,
+
+	Long getClientIdByUserId(@Param(value = "userId") String userId,
 			@Param(value = "password") String password);
 
 	List<SecurityQuestion> getSecurityQuestions(String userId);
@@ -90,4 +90,7 @@ public interface ClientDao {
 	List<SecurityQuestion> getSecurityQuestionsByEmail(String email);
 
 	Client getClientByEmail(String email);
+
+	Long getClientIdByEmail(@Param(value = "email") String email,
+			@Param(value = "password") String password);
 }
