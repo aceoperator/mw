@@ -36,4 +36,8 @@ public interface ClientService {
 
 	Success resetSecurityQuestions(String identifier, String password,
 			SecurityQuestions questions);
+
+	Success updateProfile(Principal principal, Client client);
+
+	Client getProfile(Principal principal);
 }

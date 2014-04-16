@@ -377,7 +377,128 @@ public class ClientBeanTest {
 				.getRoles().get(0).getName());
 		assertEquals(roles.get(1).getName(), clientDb.getDomains().get(1)
 				.getRoles().get(1).getName());
+		
+		// Verify get profile operation
+		Client profile = clientBean.getProfileByUserId("user1");
+		assertNotNull(profile);
+		assertTrue(profile.getId() > 0L);
+		assertFalse(profile.getUserId() == clientDb.getUserId());
+		assertNull(profile.getPassword());
+		assertEquals(profile.getFirstName(), clientDb.getFirstName());
+		assertEquals(profile.getLastName(), clientDb.getLastName());
+		assertEquals(profile.getEmail(), clientDb.getEmail());
+		assertEquals(profile.getAdditionalInfo(), clientDb.getAdditionalInfo());
+		assertEquals(profile.getPhone1(), clientDb.getPhone1());
+		assertEquals(profile.getPhone2(), clientDb.getPhone2());
+		assertEquals(profile.getStreetAddress1(), clientDb.getStreetAddress1());
+		assertEquals(profile.getStreetAddress2(), clientDb.getStreetAddress2());
+		assertEquals(profile.getCity(), clientDb.getCity());
+		assertEquals(profile.getState(), clientDb.getState());
+		assertEquals(profile.getCountry(), clientDb.getCountry());
+		assertEquals(profile.getPostalCode(), clientDb.getPostalCode());		
+		assertTrue(profile.getDomains().isEmpty());
+		assertTrue(profile.getProperties().isEmpty());
+		
+		profile = clientBean.getProfileByEmail(clientDb.getEmail());
+		assertNotNull(profile);
+		assertTrue(profile.getId() > 0L);
+		assertFalse(profile.getUserId() == clientDb.getUserId());
+		assertNull(profile.getPassword());
+		assertEquals(profile.getFirstName(), clientDb.getFirstName());
+		assertEquals(profile.getLastName(), clientDb.getLastName());
+		assertEquals(profile.getEmail(), clientDb.getEmail());
+		assertEquals(profile.getAdditionalInfo(), clientDb.getAdditionalInfo());
+		assertEquals(profile.getPhone1(), clientDb.getPhone1());
+		assertEquals(profile.getPhone2(), clientDb.getPhone2());
+		assertEquals(profile.getStreetAddress1(), clientDb.getStreetAddress1());
+		assertEquals(profile.getStreetAddress2(), clientDb.getStreetAddress2());
+		assertEquals(profile.getCity(), clientDb.getCity());
+		assertEquals(profile.getState(), clientDb.getState());
+		assertEquals(profile.getCountry(), clientDb.getCountry());
+		assertEquals(profile.getPostalCode(), clientDb.getPostalCode());		
+		assertTrue(profile.getDomains().isEmpty());
+		assertTrue(profile.getProperties().isEmpty());
 
+		// Verify update profile operation
+		client.setId(0L);
+		client.setUserId("user1");
+		client.setFirstName("Tester21");
+		client.setLastName("User21");
+		client.setEmail("user21@quik-j.com");
+		client.setAdditionalInfo("Additional Information 21");
+		client.setPassword("Abcd1234");
+		client.setPhone1("9105551215");
+		client.setPhone2("88885551215");
+		client.setStreetAddress1("1000 Bond Street");
+		client.setStreetAddress2("Suite 22223");
+		client.setCity("Los Angeles");
+		client.setState("California");
+		client.setCountry("USA");
+		client.setPostalCode("12346-7800");
+		
+		clientBean.updateProfile(client);
+		
+		clientDb = clientBean.getClientByUserId(client.getUserId());
+		assertNotNull(clientDb);
+		assertTrue(clientDb.getId() > 0L);
+		assertFalse(client.getUserId() == clientDb.getUserId());
+		assertNull(clientDb.getPassword());
+		assertEquals(client.getFirstName(), clientDb.getFirstName());
+		assertEquals(client.getLastName(), clientDb.getLastName());
+		assertEquals(client.getEmail(), clientDb.getEmail());
+		assertEquals(client.getAdditionalInfo(), clientDb.getAdditionalInfo());
+		assertEquals(client.getPhone1(), clientDb.getPhone1());
+		assertEquals(client.getPhone2(), clientDb.getPhone2());
+		assertEquals(client.getStreetAddress1(), clientDb.getStreetAddress1());
+		assertEquals(client.getStreetAddress2(), clientDb.getStreetAddress2());
+		assertEquals(client.getCity(), clientDb.getCity());
+		assertEquals(client.getState(), clientDb.getState());
+		assertEquals(client.getCountry(), clientDb.getCountry());
+		assertEquals(client.getPostalCode(), clientDb.getPostalCode());
+
+		assertEquals(domain2.getName(), client.getDefaultDomainName());
+		assertTrue(client.getDefaultDomainId() > 0L);
+
+		assertEquals(2, clientDb.getDomains().size());
+
+		Collections.sort(clientDb.getDomains(), new Comparator<Domain>() {
+			@Override
+			public int compare(Domain o1, Domain o2) {
+				return o1.getName().compareTo(o2.getName());
+			}
+		});
+
+		assertEquals(domain2.getName(), clientDb.getDomains().get(0).getName());
+		assertEquals(domain2.getUrl(), clientDb.getDomains().get(0).getUrl());
+
+		Collections.sort(clientDb.getDomains().get(0).getRoles(),
+				new Comparator<Role>() {
+					@Override
+					public int compare(Role o1, Role o2) {
+						return o1.getName().compareTo(o2.getName());
+					}
+				});
+		assertEquals("MANAGER", clientDb.getDomains().get(0).getRoles().get(0)
+				.getName());
+		assertEquals("USER", clientDb.getDomains().get(0).getRoles().get(1)
+				.getName());
+
+		assertEquals(domain3.getName(), clientDb.getDomains().get(1).getName());
+		assertEquals(domain3.getUrl(), clientDb.getDomains().get(1).getUrl());
+
+		Collections.sort(clientDb.getDomains().get(1).getRoles(),
+				new Comparator<Role>() {
+					@Override
+					public int compare(Role o1, Role o2) {
+						return o1.getName().compareTo(o2.getName());
+					}
+				});
+
+		assertEquals(roles.get(0).getName(), clientDb.getDomains().get(1)
+				.getRoles().get(0).getName());
+		assertEquals(roles.get(1).getName(), clientDb.getDomains().get(1)
+				.getRoles().get(1).getName());
+		
 		// delete the client
 		clientBean.deleteClient(clientDb.getId());
 		try {

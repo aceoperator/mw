@@ -84,4 +84,13 @@ public interface ClientBean {
 	@Transactional(propagation = Propagation.REQUIRED)
 	void resetSecurityQuestionsByEmail(String email, String password,
 			List<SecurityQuestion> securityQuestions);
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	void updateProfile(Client client);
+
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+	Client getProfileByUserId(String userId);
+
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+	Client getProfileByEmail(String email);
 }

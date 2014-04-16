@@ -455,10 +455,6 @@ public class ClientBeanImpl implements ClientBean {
 		clearSecurityQuestions(securityQuestions, clientId);
 	}
 
-	/**
-	 * @param securityQuestions
-	 * @param clientId
-	 */
 	private void clearSecurityQuestions(
 			List<SecurityQuestion> securityQuestions, Long clientId) {
 		// Remove the previous questions set by this user
@@ -640,5 +636,33 @@ public class ClientBeanImpl implements ClientBean {
 		List<SecurityQuestion> questions = clientDao
 				.getSecurityQuestionsByEmail(email);
 		return getSecurityQuestions(questions);
+	}
+	
+	@Override
+	public void updateProfile(Client client) {
+		validateClient(client, false);
+
+		Client oldClient = clientDao.getClientByUserId(client.getUserId());
+		if (oldClient == null) {
+			throw new MiddlewareCoreException("The user was not found");
+		}
+		
+		client.setId(oldClient.getId());
+		client.setDefaultDomainId(oldClient.getDefaultDomainId());
+
+		int affected = clientDao.updateClient(client);
+		if (affected == 0) {
+			throw new MiddlewareCoreException("Error updating client");
+		}
+	}
+	
+	@Override
+	public Client getProfileByUserId(String userId) {
+		return clientDao.getClientByUserId(userId);
+	}
+	
+	@Override
+	public Client getProfileByEmail(String email) {
+		return clientDao.getClientByEmail(email);
 	}
 }

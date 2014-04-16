@@ -100,7 +100,7 @@ public class ClientRestServiceImpl implements ClientService {
 	}
 
 	@Override
-	@RequestMapping(value = "/reset/{identifier}", method = RequestMethod.POST)
+	@RequestMapping(value = "/reset/password/{identifier}", method = RequestMethod.POST)
 	public Success resetPassword(@PathVariable String identifier,
 			@RequestBody SecurityQuestions questions) {
 		if (identifier.contains("@")) {
@@ -128,7 +128,7 @@ public class ClientRestServiceImpl implements ClientService {
 	}
 
 	@Override
-	@RequestMapping(value = "/questions/{identifier}", method = RequestMethod.PUT)
+	@RequestMapping(value = "/reset/questions/{identifier}", method = RequestMethod.PUT)
 	public Success resetSecurityQuestions(@PathVariable String identifier,
 			@RequestParam("password") String password, @RequestBody SecurityQuestions questions) {
 		if (identifier.contains("@")) {
@@ -140,5 +140,19 @@ public class ClientRestServiceImpl implements ClientService {
 		}
 
 		return new Success();
+	}
+	
+	@Override
+	@RequestMapping(value = "/profile", method = RequestMethod.PUT)
+	public Success updateProfile(Principal principal, @RequestBody Client client) {		
+		client.setUserId(principal.getName());		
+		clientBean.updateProfile(client);		
+		return new Success();
+	}
+	
+	@Override
+	@RequestMapping(value = "/profile", method = RequestMethod.GET)
+	public Client getProfile(Principal principal) {		
+		return clientBean.getProfileByUserId(principal.getName());
 	}
 }
