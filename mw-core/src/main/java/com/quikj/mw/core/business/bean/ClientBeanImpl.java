@@ -303,6 +303,7 @@ public class ClientBeanImpl implements ClientBean {
 	}
 
 	@Override
+	@RolesAllowed({ "SYS" })
 	public Client getClientByUserId(String userId) {
 		Client client = clientDao.getClientByUserId(userId);
 		if (client == null) {
@@ -329,6 +330,7 @@ public class ClientBeanImpl implements ClientBean {
 	}
 
 	@Override
+	@RolesAllowed({ "SYS" })
 	public Client getClientById(long clientId) {
 		Client client = clientDao.getClientById(clientId);
 		if (client == null) {

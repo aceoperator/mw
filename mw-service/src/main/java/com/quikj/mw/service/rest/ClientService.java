@@ -37,4 +37,6 @@ public interface ClientService {
 	Success updateProfile(Client client);
 
 	Client getProfile();
+
+	Success logout();
 }

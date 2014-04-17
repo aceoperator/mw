@@ -48,7 +48,7 @@ public class ClientRestServiceImpl implements ClientService {
 	}
 
 	@Override
-	@RequestMapping(value = "/change/password", method = RequestMethod.PUT)
+	@RequestMapping(value = "/password", method = RequestMethod.PUT)
 	public Success changePassword(
 			@RequestParam(value = "oldPassword", required = true) String oldPassword,
 			@RequestParam(value = "newPassword", required = true) String newPassword) {
@@ -86,8 +86,9 @@ public class ClientRestServiceImpl implements ClientService {
 
 	@Override
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public Success login(@RequestParam("identifier") String identifier,
-			@RequestParam("password") String password) {
+	public Success login(
+			@RequestParam(value = "identifier", required = true) String identifier,
+			@RequestParam(value = "password", required = true) String password) {
 
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				identifier, password);
@@ -98,8 +99,15 @@ public class ClientRestServiceImpl implements ClientService {
 	}
 
 	@Override
-	@RequestMapping(value = "/reset/password/{identifier}", method = RequestMethod.POST)
-	public Success resetPassword(@PathVariable String identifier,
+	@RequestMapping(value = "/login", method = RequestMethod.DELETE)
+	public Success logout() {
+		SecurityContextHolder.getContext().setAuthentication(null);
+		return new Success();
+	}
+
+	@Override
+	@RequestMapping(value = "/password", method = RequestMethod.POST)
+	public Success resetPassword(@RequestParam(value = "identifier", required = true) String identifier,
 			@RequestBody SecurityQuestions questions) {
 		if (identifier.contains("@")) {
 			clientBean.resetPasswordByEmail(identifier,
@@ -112,9 +120,9 @@ public class ClientRestServiceImpl implements ClientService {
 	}
 
 	@Override
-	@RequestMapping(value = "/questions/{identifier}", method = RequestMethod.GET)
+	@RequestMapping(value = "/questions", method = RequestMethod.GET)
 	public SecurityQuestions getSecurityQuestions(
-			@PathVariable String identifier) {
+			@RequestParam(value = "identifier", required = true) String identifier) {
 		List<SecurityQuestion> questions;
 		if (identifier.contains("@")) {
 			questions = clientBean.getSecurityQuestionsByEmail(identifier);
@@ -126,7 +134,7 @@ public class ClientRestServiceImpl implements ClientService {
 	}
 
 	@Override
-	@RequestMapping(value = "/reset/questions", method = RequestMethod.PUT)
+	@RequestMapping(value = "/questions", method = RequestMethod.PUT)
 	public Success resetSecurityQuestions(
 			@RequestBody SecurityQuestions questions) {
 		clientBean.resetSecurityQuestions(MiddlewareUtil.getUserId(),
