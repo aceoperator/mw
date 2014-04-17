@@ -82,15 +82,11 @@ public interface ClientDao {
 
 	int createSecurityQuestion(SecurityQuestion question);
 
-	Long getClientIdByUserId(@Param(value = "userId") String userId,
-			@Param(value = "password") String password);
+	Long getClientIdByUserId(String userId);
 
 	List<SecurityQuestion> getSecurityQuestions(String userId);
 
 	List<SecurityQuestion> getSecurityQuestionsByEmail(String email);
 
 	Client getClientByEmail(String email);
-
-	Long getClientIdByEmail(@Param(value = "email") String email,
-			@Param(value = "password") String password);
 }

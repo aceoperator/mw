@@ -14,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.userdetails.User;
 
 import com.quikj.mw.core.business.ClientBean;
 
@@ -36,7 +37,7 @@ public class MiddlewareAuthenticationProvider implements AuthenticationProvider 
 
 		try {
 			String name = auth.getName();
-			String[] tokens = name.split(",");
+			String[] tokens = name.split(MiddlewareUtil.USERNAME_DELIMITER);
 			String userName = tokens[0];
 			String domainName = null;
 			if (tokens.length > 1) {
@@ -58,7 +59,7 @@ public class MiddlewareAuthenticationProvider implements AuthenticationProvider 
 				roles.add(new GrantedAuthorityImpl(role));
 			}
 
-			org.springframework.security.core.userdetails.User u = new org.springframework.security.core.userdetails.User(
+			User u = new User(
 					authentication.getUserId() + ","
 							+ authentication.getDomainName(),
 					(String) auth.getCredentials(), true, true, true, true,

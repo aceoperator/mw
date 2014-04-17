@@ -377,7 +377,7 @@ public class ClientBeanTest {
 				.getRoles().get(0).getName());
 		assertEquals(roles.get(1).getName(), clientDb.getDomains().get(1)
 				.getRoles().get(1).getName());
-		
+
 		// Verify get profile operation
 		Client profile = clientBean.getProfileByUserId("user1");
 		assertNotNull(profile);
@@ -395,10 +395,10 @@ public class ClientBeanTest {
 		assertEquals(profile.getCity(), clientDb.getCity());
 		assertEquals(profile.getState(), clientDb.getState());
 		assertEquals(profile.getCountry(), clientDb.getCountry());
-		assertEquals(profile.getPostalCode(), clientDb.getPostalCode());		
+		assertEquals(profile.getPostalCode(), clientDb.getPostalCode());
 		assertTrue(profile.getDomains().isEmpty());
 		assertTrue(profile.getProperties().isEmpty());
-		
+
 		profile = clientBean.getProfileByEmail(clientDb.getEmail());
 		assertNotNull(profile);
 		assertTrue(profile.getId() > 0L);
@@ -415,7 +415,7 @@ public class ClientBeanTest {
 		assertEquals(profile.getCity(), clientDb.getCity());
 		assertEquals(profile.getState(), clientDb.getState());
 		assertEquals(profile.getCountry(), clientDb.getCountry());
-		assertEquals(profile.getPostalCode(), clientDb.getPostalCode());		
+		assertEquals(profile.getPostalCode(), clientDb.getPostalCode());
 		assertTrue(profile.getDomains().isEmpty());
 		assertTrue(profile.getProperties().isEmpty());
 
@@ -435,9 +435,9 @@ public class ClientBeanTest {
 		client.setState("California");
 		client.setCountry("USA");
 		client.setPostalCode("12346-7800");
-		
+
 		clientBean.updateProfile(client);
-		
+
 		clientDb = clientBean.getClientByUserId(client.getUserId());
 		assertNotNull(clientDb);
 		assertTrue(clientDb.getId() > 0L);
@@ -498,7 +498,7 @@ public class ClientBeanTest {
 				.getRoles().get(0).getName());
 		assertEquals(roles.get(1).getName(), clientDb.getDomains().get(1)
 				.getRoles().get(1).getName());
-		
+
 		// delete the client
 		clientBean.deleteClient(clientDb.getId());
 		try {
@@ -641,8 +641,8 @@ public class ClientBeanTest {
 		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q1", "a5"));
 
 		try {
-			clientBean.resetSecurityQuestionsByUserId("user2",
-					client.getPassword(), client.getSecurityQuestions());
+			clientBean.resetSecurityQuestions("user2",
+					client.getSecurityQuestions());
 			fail();
 		} catch (ValidationException e) {
 			// Expected
@@ -650,8 +650,8 @@ public class ClientBeanTest {
 
 		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q3", "a6"));
 		try {
-			clientBean.resetSecurityQuestionsByUserId("user2",
-					client.getPassword(), client.getSecurityQuestions());
+			clientBean.resetSecurityQuestions("user2",
+					client.getSecurityQuestions());
 			fail();
 		} catch (ValidationException e) {
 			// Expected
@@ -659,8 +659,8 @@ public class ClientBeanTest {
 
 		client.getSecurityQuestions().get(1).setQuestion("q2");
 
-		clientBean.resetSecurityQuestionsByUserId("user2",
-				client.getPassword(), client.getSecurityQuestions());
+		clientBean.resetSecurityQuestions("user2",
+				client.getSecurityQuestions());
 	}
 
 	@Test
@@ -823,15 +823,7 @@ public class ClientBeanTest {
 		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q5", "a5"));
 		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q6", "a6"));
 
-		clientBean.resetSecurityQuestionsByUserId("user1", newPassword,
-				client.getSecurityQuestions());
-
-		client.getSecurityQuestions().clear();
-		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q7", "a7"));
-		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q8", "a8"));
-		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q9", "a9"));
-
-		clientBean.resetSecurityQuestionsByEmail(client.getEmail(), newPassword,
+		clientBean.resetSecurityQuestions("user1",
 				client.getSecurityQuestions());
 
 		newPassword = clientBean.resetPasswordByEmail(client.getEmail(),

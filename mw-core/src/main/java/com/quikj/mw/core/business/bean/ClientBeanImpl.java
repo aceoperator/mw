@@ -123,7 +123,7 @@ public class ClientBeanImpl implements ClientBean {
 
 		if (!client.getSecurityQuestions().isEmpty()) {
 			setSecurityQuestionsByUserId(client.getUserId(),
-					client.getPassword(), client.getSecurityQuestions());
+					client.getSecurityQuestions());
 		}
 
 		for (Domain domain : client.getDomains()) {
@@ -422,32 +422,15 @@ public class ClientBeanImpl implements ClientBean {
 	}
 
 	@Override
-	public void resetSecurityQuestionsByUserId(String userId, String password,
+	public void resetSecurityQuestions(String userId,
 			List<SecurityQuestion> securityQuestions) {
 		validateSecurityQuestions(securityQuestions);
-		setSecurityQuestionsByUserId(userId, password, securityQuestions);
+		setSecurityQuestionsByUserId(userId, securityQuestions);
 	}
 
-	@Override
-	public void resetSecurityQuestionsByEmail(String email, String password,
+	private void setSecurityQuestionsByUserId(String userId,
 			List<SecurityQuestion> securityQuestions) {
-		validateSecurityQuestions(securityQuestions);
-		setSecurityQuestionsByEmail(email, password, securityQuestions);
-	}
-
-	private void setSecurityQuestionsByEmail(String email, String password,
-			List<SecurityQuestion> securityQuestions) {
-		Long clientId = clientDao.getClientIdByEmail(email, password);
-		if (clientId == null) {
-			throw new MiddlewareCoreException("User not found");
-		}
-
-		clearSecurityQuestions(securityQuestions, clientId);
-	}
-
-	private void setSecurityQuestionsByUserId(String userId, String password,
-			List<SecurityQuestion> securityQuestions) {
-		Long clientId = clientDao.getClientIdByUserId(userId, password);
+		Long clientId = clientDao.getClientIdByUserId(userId);
 		if (clientId == null) {
 			throw new MiddlewareCoreException("User not found");
 		}
@@ -468,9 +451,9 @@ public class ClientBeanImpl implements ClientBean {
 
 	private void validateClient(Client client, boolean createOperation) {
 
-		client.setUserId(Validator.validateName(client.getUserId(), "User Id"));
-
 		if (createOperation) {
+			client.setUserId(Validator.validateName(client.getUserId(),
+					"User Id"));
 			Validator.validatePassword(client.getPassword());
 		}
 
@@ -637,7 +620,7 @@ public class ClientBeanImpl implements ClientBean {
 				.getSecurityQuestionsByEmail(email);
 		return getSecurityQuestions(questions);
 	}
-	
+
 	@Override
 	public void updateProfile(Client client) {
 		validateClient(client, false);
@@ -646,7 +629,7 @@ public class ClientBeanImpl implements ClientBean {
 		if (oldClient == null) {
 			throw new MiddlewareCoreException("The user was not found");
 		}
-		
+
 		client.setId(oldClient.getId());
 		client.setDefaultDomainId(oldClient.getDefaultDomainId());
 
@@ -655,12 +638,12 @@ public class ClientBeanImpl implements ClientBean {
 			throw new MiddlewareCoreException("Error updating client");
 		}
 	}
-	
+
 	@Override
 	public Client getProfileByUserId(String userId) {
 		return clientDao.getClientByUserId(userId);
 	}
-	
+
 	@Override
 	public Client getProfileByEmail(String email) {
 		return clientDao.getClientByEmail(email);

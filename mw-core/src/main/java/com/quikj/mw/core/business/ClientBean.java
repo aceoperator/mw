@@ -13,18 +13,17 @@ import com.quikj.mw.core.value.Client;
 import com.quikj.mw.core.value.Domain;
 import com.quikj.mw.core.value.SecurityQuestion;
 
-
 /**
  * @author amit
  * 
  */
 public interface ClientBean {
-	
+
 	public static final String DEFAULT_DOMAIN = "DEFAULT";
 
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	Authentication authenticate(String userId, String domain, String password);
-	
+
 	@Transactional(propagation = Propagation.REQUIRED)
 	void createClient(Client client);
 
@@ -36,7 +35,7 @@ public interface ClientBean {
 
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	Client getClientByUserId(String userId);
-	
+
 	@Transactional(propagation = Propagation.REQUIRED)
 	void createDomain(Domain domain);
 
@@ -66,7 +65,7 @@ public interface ClientBean {
 	void changePassword(String userId, String newPassword);
 
 	@Transactional(propagation = Propagation.REQUIRED)
-	void resetSecurityQuestionsByUserId(String userId, String password,
+	void resetSecurityQuestions(String userId,
 			List<SecurityQuestion> securityQuestions);
 
 	@Transactional(propagation = Propagation.REQUIRED)
@@ -80,10 +79,6 @@ public interface ClientBean {
 
 	@Transactional(propagation = Propagation.REQUIRED)
 	String resetPasswordByEmail(String email, List<SecurityQuestion> questions);
-
-	@Transactional(propagation = Propagation.REQUIRED)
-	void resetSecurityQuestionsByEmail(String email, String password,
-			List<SecurityQuestion> securityQuestions);
 
 	@Transactional(propagation = Propagation.REQUIRED)
 	void updateProfile(Client client);

@@ -4,8 +4,6 @@
  */
 package com.quikj.mw.service.rest;
 
-import java.security.Principal;
-
 import com.quikj.mw.core.value.Client;
 import com.quikj.mw.core.value.SecurityQuestions;
 import com.quikj.mw.core.value.Success;
@@ -17,7 +15,7 @@ import com.quikj.mw.core.value.Success;
  */
 public interface ClientService {
 
-	Success changePassword(Principal principal, String oldPassword,
+	Success changePassword(String oldPassword,
 			String newPassword);
 
 	Success deleteClient(long clientId);
@@ -34,10 +32,9 @@ public interface ClientService {
 
 	SecurityQuestions getSecurityQuestions(String identifier);
 
-	Success resetSecurityQuestions(String identifier, String password,
-			SecurityQuestions questions);
+	Success resetSecurityQuestions(SecurityQuestions questions);
 
-	Success updateProfile(Principal principal, Client client);
+	Success updateProfile(Client client);
 
-	Client getProfile(Principal principal);
+	Client getProfile();
 }

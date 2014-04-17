@@ -4,7 +4,6 @@
  */
 package com.quikj.mw.service.rest.bean;
 
-import java.security.Principal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +20,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.quikj.mw.core.business.ClientBean;
 import com.quikj.mw.core.value.Client;
-import com.quikj.mw.core.value.Domain;
 import com.quikj.mw.core.value.SecurityQuestion;
 import com.quikj.mw.core.value.SecurityQuestions;
 import com.quikj.mw.core.value.Success;
+import com.quikj.mw.service.framework.MiddlewareUtil;
 import com.quikj.mw.service.rest.ClientService;
 
 /**
@@ -49,12 +48,11 @@ public class ClientRestServiceImpl implements ClientService {
 	}
 
 	@Override
-	@RequestMapping(value = "/password", method = RequestMethod.POST)
+	@RequestMapping(value = "/change/password", method = RequestMethod.PUT)
 	public Success changePassword(
-			Principal principal,
 			@RequestParam(value = "oldPassword", required = true) String oldPassword,
 			@RequestParam(value = "newPassword", required = true) String newPassword) {
-		clientBean.changeOwnPassword(principal.getName(), oldPassword,
+		clientBean.changeOwnPassword(MiddlewareUtil.getUserId(), oldPassword,
 				newPassword);
 		return new Success();
 	}
@@ -128,31 +126,25 @@ public class ClientRestServiceImpl implements ClientService {
 	}
 
 	@Override
-	@RequestMapping(value = "/reset/questions/{identifier}", method = RequestMethod.PUT)
-	public Success resetSecurityQuestions(@PathVariable String identifier,
-			@RequestParam("password") String password, @RequestBody SecurityQuestions questions) {
-		if (identifier.contains("@")) {
-			clientBean.resetSecurityQuestionsByEmail(identifier, password,
-					questions.getSecurityQuestions());
-		} else {
-			clientBean.resetSecurityQuestionsByUserId(identifier, password,
-					questions.getSecurityQuestions());
-		}
-
+	@RequestMapping(value = "/reset/questions", method = RequestMethod.PUT)
+	public Success resetSecurityQuestions(
+			@RequestBody SecurityQuestions questions) {
+		clientBean.resetSecurityQuestions(MiddlewareUtil.getUserId(),
+				questions.getSecurityQuestions());
 		return new Success();
 	}
-	
+
 	@Override
 	@RequestMapping(value = "/profile", method = RequestMethod.PUT)
-	public Success updateProfile(Principal principal, @RequestBody Client client) {		
-		client.setUserId(principal.getName());		
-		clientBean.updateProfile(client);		
+	public Success updateProfile(@RequestBody Client client) {
+		client.setUserId(MiddlewareUtil.getUserId());
+		clientBean.updateProfile(client);
 		return new Success();
 	}
-	
+
 	@Override
 	@RequestMapping(value = "/profile", method = RequestMethod.GET)
-	public Client getProfile(Principal principal) {		
-		return clientBean.getProfileByUserId(principal.getName());
+	public Client getProfile() {
+		return clientBean.getProfileByUserId(MiddlewareUtil.getUserId());
 	}
 }

@@ -204,15 +204,9 @@
 	<select id="getClientIdByUserId" statementType="PREPARED" resultType="java.lang.Long">
 		SELECT ID
 		FROM MWC_CLIENT 
-		WHERE USERID = #{userId} AND PASSWORD = PASSWORD(#{password})
+		WHERE USERID = #{userId}
 	</select>
 	
-	<select id="getClientIdByEmail" statementType="PREPARED" resultType="java.lang.Long">
-		SELECT ID
-		FROM MWC_CLIENT 
-		WHERE EMAIL = #{email} AND PASSWORD = PASSWORD(#{password})
-	</select>
-
 	<delete id="clearSecurityQuestions" statementType="PREPARED">
 		DELETE FROM MWC_SECURITY_QUESTION
 		WHERE CLIENT_ID = #{clientId}
