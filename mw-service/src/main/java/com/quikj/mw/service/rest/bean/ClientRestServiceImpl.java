@@ -6,6 +6,8 @@ package com.quikj.mw.service.rest.bean;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +25,9 @@ import com.quikj.mw.core.value.Client;
 import com.quikj.mw.core.value.SecurityQuestion;
 import com.quikj.mw.core.value.SecurityQuestions;
 import com.quikj.mw.core.value.Success;
+import com.quikj.mw.service.MiddlewareServiceException;
+import com.quikj.mw.service.framework.CaptchaUtil;
+import com.quikj.mw.service.framework.MiddlewareGlobalProperties;
 import com.quikj.mw.service.framework.MiddlewareUtil;
 import com.quikj.mw.service.rest.ClientService;
 
@@ -38,6 +43,14 @@ public class ClientRestServiceImpl implements ClientService {
 
 	@Autowired
 	private AuthenticationManager authManager;
+
+	@Autowired
+	private MiddlewareGlobalProperties mwGlobalProperties;
+
+	public void setMwGlobalProperties(
+			MiddlewareGlobalProperties mwGlobalProperties) {
+		this.mwGlobalProperties = mwGlobalProperties;
+	}
 
 	public void setAuthManager(AuthenticationManager authManager) {
 		this.authManager = authManager;
@@ -105,10 +118,17 @@ public class ClientRestServiceImpl implements ClientService {
 		return new Success();
 	}
 
+	// TODO test this
 	@Override
-	@RequestMapping(value = "/password", method = RequestMethod.POST)
-	public Success resetPassword(@RequestParam(value = "identifier", required = true) String identifier,
+	@RequestMapping(value = "/password", method = RequestMethod.PUT)
+	public Success resetPassword(
+			HttpServletRequest request,
+			@RequestParam(value = "identifier", required = true) String identifier,
+			@RequestParam(value = "captcha", required = true) String captcha,
 			@RequestBody SecurityQuestions questions) {
+
+		CaptchaUtil.validateCaptcha(request, captcha);
+
 		if (identifier.contains("@")) {
 			clientBean.resetPasswordByEmail(identifier,
 					questions.getSecurityQuestions());
@@ -122,7 +142,28 @@ public class ClientRestServiceImpl implements ClientService {
 	@Override
 	@RequestMapping(value = "/questions", method = RequestMethod.GET)
 	public SecurityQuestions getSecurityQuestions(
-			@RequestParam(value = "identifier", required = true) String identifier) {
+			HttpServletRequest request,
+			@RequestParam(value = "identifier", required = true) String identifier,
+			@RequestParam(value = "captcha", required = false) String captcha) {
+
+		if (mwGlobalProperties
+				.getProperties()
+				.getProperty(
+						MiddlewareGlobalProperties.VALIDATE_CAPTCHA_ON_GET_SEC_QUESTIONS,
+						"true").equals("true")) {
+			if (captcha == null) {
+				throw new MiddlewareServiceException(
+						"No captcha value specified");
+			}
+
+			CaptchaUtil.validateCaptcha(request, captcha);
+		}
+
+		// TODO use a system variable to verify this
+		if (captcha != null) {
+			CaptchaUtil.validateCaptcha(request, captcha);
+		}
+
 		List<SecurityQuestion> questions;
 		if (identifier.contains("@")) {
 			questions = clientBean.getSecurityQuestionsByEmail(identifier);

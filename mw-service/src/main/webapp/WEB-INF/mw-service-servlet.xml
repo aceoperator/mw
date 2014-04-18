@@ -15,11 +15,11 @@
 		<property name="ignoreUnresolvablePlaceholders" value="false" />
 		<property name="locations">
 			<list>
-				<value>file:${user.home}/.mw/config/properties/*.properties</value>
+				<value>file:${user.home}/.mw/conf/properties/*.properties</value>
 			</list>
 		</property>
 	</bean>
-	
+
 	<context:component-scan base-package="com.quikj.mw.service.rest.bean" />
 
 	<oxm:jaxb2-marshaller id="xmlMarshaller">
@@ -31,8 +31,7 @@
 		<oxm:class-to-be-bound name="com.quikj.mw.activiti.value.ProcessAttributes" />
 	</oxm:jaxb2-marshaller>
 
-	<bean id="webServicesInterceptor"
-		class="com.quikj.mw.service.framework.WebServicesInterceptor" />
+	<bean id="webServicesInterceptor" class="com.quikj.mw.service.framework.WebServicesInterceptor" />
 
 	<bean
 		class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
@@ -72,8 +71,7 @@
 	<bean class="org.springframework.web.servlet.view.BeanNameViewResolver"
 		p:order="1" />
 
-	<bean id="jsonMapper"
-		class="com.quikj.mw.service.framework.JsonJaxbAnnotationMapper" />
+	<bean id="jsonMapper" class="com.quikj.mw.service.framework.JsonJaxbAnnotationMapper" />
 
 	<bean
 		class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver"
@@ -99,8 +97,18 @@
 		</property>
 	</bean>
 
-	<bean id="serviceExceptionHandler"
-		class="com.quikj.mw.service.framework.ServiceExceptionHandler">
+	<bean id="serviceExceptionHandler" class="com.quikj.mw.service.framework.ServiceExceptionHandler">
 		<property name="order" value="2" />
+	</bean>
+
+	<bean id="mwGlobalProperties"
+		class="com.quikj.mw.service.framework.MiddlewareGlobalProperties">
+		<property name="properties">
+			<props>
+				<prop
+					key="com.quikj.mw.service.properties.validateCaptchaOnGetSecQuestion">${com.quikj.mw.service.properties.validateCaptchaOnGetSecQuestion}
+				</prop>
+			</props>
+		</property>
 	</bean>
 </beans>
