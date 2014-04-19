@@ -14,6 +14,8 @@ public class MiddlewareGlobalProperties {
 
 	public static final String VALIDATE_CAPTCHA_ON_GET_SEC_QUESTIONS = "com.quikj.mw.service.properties.validateCaptchaOnGetSecQuestion";
 
+	public static final String VALIDATE_CAPTCHA_ON_RESET_PASSWORD = "com.quikj.mw.service.properties.validateCaptchaOnResetPassword";
+
 	private Properties properties = new Properties();
 
 	public Properties getProperties() {

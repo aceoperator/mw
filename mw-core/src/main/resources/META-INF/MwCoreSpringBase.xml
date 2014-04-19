@@ -153,28 +153,38 @@
 		<constructor-arg index="0" value="http://localhost:8080/solr" />
 	</bean>
 
-	<bean id="scriptingBean"
-		class="com.quikj.mw.core.business.bean.ScriptingBeanGroovyImpl">
+	<bean id="scriptingBean" class="com.quikj.mw.core.business.bean.ScriptingBeanGroovyImpl">
 		<property name="groovyShell">
 			<bean class="groovy.lang.GroovyShell" />
 		</property>
 	</bean>
-	
+
 	<bean id="cacheManager"
-        class="org.infinispan.spring.provider.SpringEmbeddedCacheManagerFactoryBean">
-        <property name="configurationFileLocation"
-            value="classpath:/META-INF/infinispan.xml" />
- 	</bean>
- 	
- 	<bean class="org.mybatis.spring.mapper.MapperFactoryBean" id="clientDao">
+		class="org.infinispan.spring.provider.SpringEmbeddedCacheManagerFactoryBean">
+		<property name="configurationFileLocation" value="classpath:/META-INF/infinispan.xml" />
+	</bean>
+
+	<bean class="org.mybatis.spring.mapper.MapperFactoryBean" id="clientDao">
 		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
 		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
 		<property name="mapperInterface" value="com.quikj.mw.core.dao.ClientDao" />
 	</bean>
-			
-	<bean id ="clientBean" class="com.quikj.mw.core.business.bean.ClientBeanImpl">
+
+	<bean id="clientBean" class="com.quikj.mw.core.business.bean.ClientBeanImpl">
 		<property name="clientDao" ref="clientDao" />
 		<property name="mailBean" ref="mailBean" />
-	</bean>	
-	
+	</bean>
+
+	<bean id="captchaBeanSmall"
+		class="com.quikj.mw.core.business.bean.CaptchaBeanJCaptchaImpl"
+		init-method="init">
+		<property name="captchaType" value="SMALL" />
+	</bean>
+
+	<bean id="captchaBeanLarge"
+		class="com.quikj.mw.core.business.bean.CaptchaBeanJCaptchaImpl"
+		init-method="init">
+		<property name="captchaType" value="LARGE" />
+	</bean>
+
 </beans>

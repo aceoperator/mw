@@ -108,6 +108,9 @@
 				<prop
 					key="com.quikj.mw.service.properties.validateCaptchaOnGetSecQuestion">${com.quikj.mw.service.properties.validateCaptchaOnGetSecQuestion}
 				</prop>
+				<prop
+					key="com.quikj.mw.service.properties.validateCaptchaOnResetPassword">${com.quikj.mw.service.properties.validateCaptchaOnResetPassword}
+				</prop>
 			</props>
 		</property>
 	</bean>

@@ -124,10 +124,13 @@ public class ClientRestServiceImpl implements ClientService {
 	public Success resetPassword(
 			HttpServletRequest request,
 			@RequestParam(value = "identifier", required = true) String identifier,
-			@RequestParam(value = "captcha", required = true) String captcha,
+			@RequestParam(value = "captcha", required = false) String captcha,
 			@RequestBody SecurityQuestions questions) {
 
-		CaptchaUtil.validateCaptcha(request, captcha);
+		validateCaptchaIfNeeded(
+				request,
+				captcha,
+				MiddlewareGlobalProperties.VALIDATE_CAPTCHA_ON_RESET_PASSWORD);
 
 		if (identifier.contains("@")) {
 			clientBean.resetPasswordByEmail(identifier,
@@ -146,18 +149,10 @@ public class ClientRestServiceImpl implements ClientService {
 			@RequestParam(value = "identifier", required = true) String identifier,
 			@RequestParam(value = "captcha", required = false) String captcha) {
 
-		if (mwGlobalProperties
-				.getProperties()
-				.getProperty(
-						MiddlewareGlobalProperties.VALIDATE_CAPTCHA_ON_GET_SEC_QUESTIONS,
-						"true").equals("true")) {
-			if (captcha == null) {
-				throw new MiddlewareServiceException(
-						"No captcha value specified");
-			}
-
-			CaptchaUtil.validateCaptcha(request, captcha);
-		}
+		validateCaptchaIfNeeded(
+				request,
+				captcha,
+				MiddlewareGlobalProperties.VALIDATE_CAPTCHA_ON_GET_SEC_QUESTIONS);
 
 		// TODO use a system variable to verify this
 		if (captcha != null) {
@@ -172,6 +167,19 @@ public class ClientRestServiceImpl implements ClientService {
 		}
 
 		return new SecurityQuestions(questions);
+	}
+
+	private void validateCaptchaIfNeeded(HttpServletRequest request,
+			String captcha, String property) {
+		if (mwGlobalProperties.getProperties().getProperty(property, "true")
+				.equals("true")) {
+			if (captcha == null) {
+				throw new MiddlewareServiceException(
+						"No captcha value specified");
+			}
+
+			CaptchaUtil.validateCaptcha(request, captcha);
+		}
 	}
 
 	@Override
