@@ -46,7 +46,7 @@
 	</servlet>
 	
 	<servlet>
-        <servlet-name>jcaptcha</servlet-name>
+        <servlet-name>captcha</servlet-name>
         <servlet-class>com.quikj.mw.service.servlet.CaptchaServlet</servlet-class>
     </servlet>	
 
@@ -56,8 +56,8 @@
 	</servlet-mapping>
 
 	<servlet-mapping>
-        <servlet-name>jcaptcha</servlet-name>
-        <url-pattern>/jcaptcha</url-pattern>
+        <servlet-name>captcha</servlet-name>
+        <url-pattern>/captcha</url-pattern>
     </servlet-mapping>
 
 	<session-config>

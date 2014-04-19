@@ -1,6 +1,5 @@
 package com.quikj.mw.service.servlet;
 
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import javax.servlet.ServletConfig;
@@ -10,9 +9,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.keypoint.PngEncoder;
 import com.octo.captcha.service.CaptchaServiceException;
-import com.quikj.mw.service.framework.CaptchaService;
+import com.quikj.mw.core.business.CaptchaBean;
+import com.quikj.mw.service.framework.SpringBeanLookup;
 
 public class CaptchaServlet extends HttpServlet {
 
@@ -32,21 +31,20 @@ public class CaptchaServlet extends HttpServlet {
 			// the same id must be used to validate the response, the session id
 			// is a good candidate!
 			String captchaId = httpServletRequest.getSession(true).getId();
-			
-			CaptchaService.CaptchaType captchaType = CaptchaService.CaptchaType.LARGE;
+
+			CaptchaBean captchaBean = (CaptchaBean) SpringBeanLookup.getBean(
+					httpServletRequest.getSession().getServletContext(),
+					"captchaBeanLarge");
+
 			String type = httpServletRequest.getParameter("type");
 			if (type != null) {
-				captchaType = CaptchaService.CaptchaType.fromValue(type);
+				captchaBean = (CaptchaBean) SpringBeanLookup.getBean(
+						httpServletRequest.getSession().getServletContext(),
+						"captchaBeanSmall");
 			}
-			
-			// call the ImageCaptchaService getChallenge method
-			BufferedImage challenge = CaptchaService.getInstance(captchaType)
-					.getImageChallengeForID(captchaId,
-							httpServletRequest.getLocale());
 
-			PngEncoder encoder = new PngEncoder(challenge);
-			captchaChallengeAsPng = encoder.pngEncode();
-			
+			captchaChallengeAsPng = captchaBean.getCaptchaPngImage(captchaId,
+					httpServletRequest.getLocale());
 		} catch (IllegalArgumentException e) {
 			httpServletResponse.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;

@@ -20,13 +20,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.quikj.mw.core.business.CaptchaBean;
 import com.quikj.mw.core.business.ClientBean;
 import com.quikj.mw.core.value.Client;
 import com.quikj.mw.core.value.SecurityQuestion;
 import com.quikj.mw.core.value.SecurityQuestions;
 import com.quikj.mw.core.value.Success;
 import com.quikj.mw.service.MiddlewareServiceException;
-import com.quikj.mw.service.framework.CaptchaUtil;
 import com.quikj.mw.service.framework.MiddlewareGlobalProperties;
 import com.quikj.mw.service.framework.MiddlewareUtil;
 import com.quikj.mw.service.rest.ClientService;
@@ -46,6 +46,13 @@ public class ClientRestServiceImpl implements ClientService {
 
 	@Autowired
 	private MiddlewareGlobalProperties mwGlobalProperties;
+
+	@Autowired
+	private CaptchaBean captchaBeanLarge;
+
+	public void setCaptchaBeanLarge(CaptchaBean captchaBeanLarge) {
+		this.captchaBeanLarge = captchaBeanLarge;
+	}
 
 	public void setMwGlobalProperties(
 			MiddlewareGlobalProperties mwGlobalProperties) {
@@ -127,9 +134,7 @@ public class ClientRestServiceImpl implements ClientService {
 			@RequestParam(value = "captcha", required = false) String captcha,
 			@RequestBody SecurityQuestions questions) {
 
-		validateCaptchaIfNeeded(
-				request,
-				captcha,
+		validateCaptchaIfNeeded(request, captcha,
 				MiddlewareGlobalProperties.VALIDATE_CAPTCHA_ON_RESET_PASSWORD);
 
 		if (identifier.contains("@")) {
@@ -154,11 +159,6 @@ public class ClientRestServiceImpl implements ClientService {
 				captcha,
 				MiddlewareGlobalProperties.VALIDATE_CAPTCHA_ON_GET_SEC_QUESTIONS);
 
-		// TODO use a system variable to verify this
-		if (captcha != null) {
-			CaptchaUtil.validateCaptcha(request, captcha);
-		}
-
 		List<SecurityQuestion> questions;
 		if (identifier.contains("@")) {
 			questions = clientBean.getSecurityQuestionsByEmail(identifier);
@@ -178,7 +178,8 @@ public class ClientRestServiceImpl implements ClientService {
 						"No captcha value specified");
 			}
 
-			CaptchaUtil.validateCaptcha(request, captcha);
+			captchaBeanLarge.validateCaptcha(request.getSession().getId(),
+					captcha);
 		}
 	}
 
