@@ -109,7 +109,6 @@ public class ClientRestServiceImpl implements ClientService {
 	public Success login(
 			@RequestParam(value = "identifier", required = true) String identifier,
 			@RequestParam(value = "password", required = true) String password) {
-
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				identifier, password);
 
@@ -121,13 +120,16 @@ public class ClientRestServiceImpl implements ClientService {
 	@Override
 	@RequestMapping(value = "/login", method = RequestMethod.DELETE)
 	public Success logout() {
+		if (SecurityContextHolder.getContext().getAuthentication() == null) {
+			throw new MiddlewareServiceException("Not logged in");
+		}
+		
 		SecurityContextHolder.getContext().setAuthentication(null);
 		return new Success();
 	}
 
-	// TODO test this
 	@Override
-	@RequestMapping(value = "/password", method = RequestMethod.PUT)
+	@RequestMapping(value = "/password", method = RequestMethod.POST)
 	public Success resetPassword(
 			HttpServletRequest request,
 			@RequestParam(value = "identifier", required = true) String identifier,

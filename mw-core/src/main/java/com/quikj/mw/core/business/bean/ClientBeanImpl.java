@@ -391,6 +391,11 @@ public class ClientBeanImpl implements ClientBean {
 	@Override
 	public void changeOwnPassword(String userId, String oldPassword,
 			String newPassword) {
+		
+		if (oldPassword.equals(newPassword)) {
+			throw new ValidationException("Passwords should not match");
+		}
+		
 		newPassword = Validator.validatePassword(newPassword);
 		int affected = clientDao.changeOwnPassword(userId, oldPassword,
 				newPassword);

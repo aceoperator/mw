@@ -5,10 +5,8 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 		http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 
-	<security:global-method-security
-		secured-annotations="enabled" jsr250-annotations="enabled" />
-
-	<security:http pattern="/jcaptcha" security="none" />
+ 	<security:global-method-security
+ 		secured-annotations="enabled" jsr250-annotations="enabled" />
 
 	<security:http auto-config="true"
 		security-context-repository-ref="sessionSecurityContextRepository">
@@ -17,6 +15,8 @@
 		<security:intercept-url pattern="/rest/client/password" method="POST"
 			access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<security:intercept-url pattern="/rest/client/questions" method="GET"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/rest/captcha" method="GET"
 			access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		
 		<security:intercept-url pattern="/**"
