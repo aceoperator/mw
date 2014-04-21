@@ -3,6 +3,8 @@
  */
 package com.quikj.mw.core.business.unit;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -43,11 +45,24 @@ public class DocumentGeneratorBeanTest {
 		Map<String, Object> map = new HashMap<>();
 		map.put("companyName", "QUIK Computing");
 
-		File root = new File( System.getProperty("user.home")
+		File root = new File(System.getProperty("user.home")
 				+ "/.mw/files/test/www");
 		FileUtils.deleteDirectory(root);
 		
 		documentGeneratorBean.generate(map, System.getProperty("user.home")
-				+ "/.mw/files/test", "test/docgen", "www");
+				+ "/.mw/files/test", "test/docgen", "www", null);
+		assertTrue(root.exists() && root.isDirectory());
+		assertTrue(root.list().length > 0);
+
+		FileUtils.deleteDirectory(root);
+		documentGeneratorBean.generate(map, System.getProperty("user.home")
+				+ "/.mw/files/test", "test/docgen", "www", new String[] {
+				"test/docgen/products",
+				"test/docgen/services",
+				"test/docgen/index\\.html" });
+
+		assertTrue(root.exists() && root.isDirectory());
+		assertTrue(root.list().length == 1);
+
 	}
 }

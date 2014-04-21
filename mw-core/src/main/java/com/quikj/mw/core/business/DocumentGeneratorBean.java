@@ -7,10 +7,10 @@ import java.util.Map;
 
 /**
  * @author amit
- *
+ * 
  */
 public interface DocumentGeneratorBean {
 
 	void generate(Map<String, Object> properties, String outputRoot,
-			String templateRoot, String rootDirName);
+			String templateRoot, String rootDirName, String[] excludePatterns);
 }

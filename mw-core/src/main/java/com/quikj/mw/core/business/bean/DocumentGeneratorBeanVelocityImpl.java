@@ -31,7 +31,7 @@ public class DocumentGeneratorBeanVelocityImpl implements DocumentGeneratorBean 
 
 	@Override
 	public void generate(Map<String, Object> properties, String outputRoot,
-			String templateRoot, String rootDirName) {
+			String templateRoot, String rootDirName, String[] excludePatterns) {
 		File templateRootDir = new File(System.getProperty("user.home")
 				+ "/.mw/velocity/" + templateRoot);
 
@@ -45,7 +45,7 @@ public class DocumentGeneratorBeanVelocityImpl implements DocumentGeneratorBean 
 
 		try {
 			generateDocuments(templateRootDir, outputRootDir, properties,
-					templateRoot);
+					templateRoot, excludePatterns);
 		} catch (MiddlewareCoreException e) {
 			throw e;
 		} catch (Exception e) {
@@ -54,8 +54,9 @@ public class DocumentGeneratorBeanVelocityImpl implements DocumentGeneratorBean 
 	}
 
 	private void generateDocuments(File templateDir, File outputDir,
-			Map<String, Object> properties, String templatePath)
-			throws VelocityException, IOException {
+			Map<String, Object> properties, String templatePath,
+			String[] excludePatterns) throws VelocityException, IOException {
+
 		File[] files = templateDir.listFiles();
 		if (files == null) {
 			LogFactory.getLog(getClass()).warn(
@@ -71,25 +72,52 @@ public class DocumentGeneratorBeanVelocityImpl implements DocumentGeneratorBean 
 				String childTemplatePath = templatePath
 						+ (templatePath.isEmpty() ? "" : "/") + file.getName();
 
+				if (exclude(childTemplatePath, excludePatterns)) {
+					return;
+				}
+				
 				if (!childDir.mkdir()) {
 					throw new MiddlewareCoreException(
 							"Output directory could not be created - "
 									+ childDir.getAbsolutePath());
 				}
 
-				generateDocuments(file, childDir, properties, childTemplatePath);
+				generateDocuments(file, childDir, properties,
+						childTemplatePath, excludePatterns);
 			} else if (file.isFile() && file.getName().endsWith(".vm")) {
 				// Create the file from the velocity template
-				File outputFile = new File(outputDir, file.getName().substring(
-						0, file.getName().length() - 3));
+				String templateName = file.getName().substring(0,
+						file.getName().length() - 3);
+				File outputFile = new File(outputDir, templateName);
+
+				if (exclude(templatePath + "/" + templateName, excludePatterns)) {
+					continue;
+				}
+
 				FileWriter writer = new FileWriter(outputFile);
 				VelocityEngineUtils.mergeTemplate(velocity, templatePath + "/"
 						+ file.getName(), properties, writer);
 				writer.close();
 			} else {
 				// Copy the rest of the files to the destination
-				FileUtils.copyFile(file, outputDir);
+				File childDir = new File(outputDir.getAbsolutePath(),
+						file.getName());
+				FileUtils.copyFile(file, childDir);
 			}
 		}
+	}
+
+	private boolean exclude(String templatePath, String[] excludePatterns) {
+		if (excludePatterns == null) {
+			return false;
+		}
+
+		for (String excludePattern : excludePatterns) {
+			if (templatePath.matches(excludePattern)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }
