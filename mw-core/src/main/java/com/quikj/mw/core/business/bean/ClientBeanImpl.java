@@ -391,11 +391,11 @@ public class ClientBeanImpl implements ClientBean {
 	@Override
 	public void changeOwnPassword(String userId, String oldPassword,
 			String newPassword) {
-		
+
 		if (oldPassword.equals(newPassword)) {
 			throw new ValidationException("Passwords should not match");
 		}
-		
+
 		newPassword = Validator.validatePassword(newPassword);
 		int affected = clientDao.changeOwnPassword(userId, oldPassword,
 				newPassword);
@@ -579,7 +579,8 @@ public class ClientBeanImpl implements ClientBean {
 		properties.put("client", client);
 		mailBean.sendMessage(new String[] { client.getEmail() }, null, null,
 				null, "Your password has been reset",
-				"template:password_changed", true, null, null, properties);
+				"template:client/PasswordChanged", true,
+				null, null, properties);
 		return newPassword;
 	}
 

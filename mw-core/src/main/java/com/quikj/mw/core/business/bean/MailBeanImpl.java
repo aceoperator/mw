@@ -31,27 +31,12 @@ public class MailBeanImpl implements MailBean {
 
 	private VelocityEngine velocity;
 
-	public MailBeanImpl() {
-	}
-
-	public VelocityEngine getVelocity() {
-		return velocity;
-	}
-
 	public void setVelocity(VelocityEngine velocity) {
 		this.velocity = velocity;
 	}
 
-	public JavaMailSender getMailSender() {
-		return mailSender;
-	}
-
 	public void setMailSender(JavaMailSender mailSender) {
 		this.mailSender = mailSender;
-	}
-
-	public String getDefaultFromEmail() {
-		return defaultFromEmail;
 	}
 
 	public void setDefaultFromEmail(String defaultFromEmail) {

@@ -1,0 +1,7 @@
+<html>
+<header>
+	<title>Products</title>
+</header>
+Welcome to the services for company ${companyName}.
+</body>
+</html>

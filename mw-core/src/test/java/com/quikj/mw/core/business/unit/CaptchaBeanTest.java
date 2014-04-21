@@ -6,7 +6,6 @@ package com.quikj.mw.core.business.unit;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
 import java.util.Locale;
 
 import org.junit.Test;
@@ -18,7 +17,6 @@ import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.quikj.mw.core.business.CaptchaBean;
-import com.quikj.mw.core.business.ScriptingBean;
 
 /**
  * @author amit

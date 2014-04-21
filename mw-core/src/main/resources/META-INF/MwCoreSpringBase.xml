@@ -175,16 +175,19 @@
 		<property name="mailBean" ref="mailBean" />
 	</bean>
 
-	<bean id="captchaBeanSmall"
-		class="com.quikj.mw.core.business.bean.CaptchaBeanJCaptchaImpl"
+	<bean id="captchaBeanSmall" class="com.quikj.mw.core.business.bean.CaptchaBeanJCaptchaImpl"
 		init-method="init">
 		<property name="captchaType" value="SMALL" />
 	</bean>
 
-	<bean id="captchaBeanLarge"
-		class="com.quikj.mw.core.business.bean.CaptchaBeanJCaptchaImpl"
+	<bean id="captchaBeanLarge" class="com.quikj.mw.core.business.bean.CaptchaBeanJCaptchaImpl"
 		init-method="init">
 		<property name="captchaType" value="LARGE" />
+	</bean>
+
+	<bean id="documentGenerationBean"
+		class="com.quikj.mw.core.business.bean.DocumentGeneratorBeanVelocityImpl">
+		<property name="velocity" ref="velocityEngineFactory" />
 	</bean>
 
 </beans>

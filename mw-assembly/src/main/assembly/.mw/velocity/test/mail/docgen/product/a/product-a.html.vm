@@ -1,0 +1,7 @@
+<html>
+<header>
+	<title>Product A</title>
+</header>
+Welcome to the products A page for company ${companyName}.
+</body>
+</html>

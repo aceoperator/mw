@@ -803,6 +803,9 @@ public class ClientBeanTest {
 		assertTrue(newPassword.indexOf('-') == -1);
 
 		assertEquals(1, smtpServer.getReceivedEmailSize());
+		
+		SmtpMessage email = (SmtpMessage) smtpServer.getReceivedEmail().next();
+		assertTrue(email.getBody().contains(client.getFirstName()));
 
 		Iterator<?> iter = smtpServer.getReceivedEmail();
 		SmtpMessage message = (SmtpMessage) iter.next();

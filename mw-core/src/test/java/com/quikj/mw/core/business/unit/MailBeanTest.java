@@ -90,7 +90,7 @@ public class MailBeanTest {
 		properties.put("prop1", "hello");
 		properties.put("prop2", "world");
 		mailBean.sendMessage(to, cc, null, null, "This is a test email",
-				"template:test", false, null, null, properties);
+				"template:test/mail/test", false, null, null, properties);
 
 		email = getLastMessage();
 		assertTrue(email.getBody().startsWith("This is a test."));

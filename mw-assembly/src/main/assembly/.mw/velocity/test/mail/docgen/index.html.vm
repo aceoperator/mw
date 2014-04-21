@@ -1,0 +1,7 @@
+<html>
+<header>
+	<title>Home</title>
+</header>
+This is the home page for company ${companyName}.
+</body>
+</html>
