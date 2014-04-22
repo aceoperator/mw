@@ -11,6 +11,6 @@
     </global>
 
     <namedCache name="client">
-        <eviction strategy="LIRS" maxEntries="50" />
+        <eviction strategy="LIRS" maxEntries="500" />
     </namedCache>
 </infinispan>

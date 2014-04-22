@@ -6,6 +6,8 @@ package com.quikj.mw.core.dao;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 
 import com.quikj.mw.core.dao.value.ClientDomainMap;
 import com.quikj.mw.core.dao.value.ClientDomainRoleMap;
@@ -28,6 +30,7 @@ public interface ClientDao {
 			@Param(value = "domain") String domain,
 			@Param(value = "password") String password);
 
+	@Cacheable("client")
 	List<String> listRoles(@Param(value = "clientId") long clientId,
 			@Param(value = "domainId") long domainId);
 
@@ -35,19 +38,26 @@ public interface ClientDao {
 
 	int createClientDomainMap(ClientDomainMap map);
 
+	@CacheEvict("client")
 	int deleteClient(long clientId);
 
+	@Cacheable("client")
 	Client getClientByUserId(String userId);
 
+	@Cacheable("client")
 	List<Domain> getClientDomains(long clientId);
 
+	@Cacheable("client")
 	List<Role> getClientRoles(@Param(value = "clientId") long clientId,
 			@Param(value = "domainId") long domainId);
 
+	@CacheEvict("client")
 	int updateClient(Client client);
 
+	@Cacheable("client")
 	Client getClientById(long clientId);
 
+	@CacheEvict("client")
 	void deleteClientDomainMap(@Param(value = "clientId") long clientId,
 			@Param(value = "domainName") String domainName);
 
@@ -57,6 +67,7 @@ public interface ClientDao {
 			@Param(value = "domainId") long domainId,
 			@Param(value = "roleName") String roleName);
 
+	@CacheEvict("client")
 	void deleteClientDomainRoleMap(@Param(value = "clientId") long clientId,
 			@Param(value = "domainId") long domainId,
 			@Param(value = "roleName") String roleName);
@@ -82,11 +93,13 @@ public interface ClientDao {
 
 	int createSecurityQuestion(SecurityQuestion question);
 
+	@Cacheable("client")
 	Long getClientIdByUserId(String userId);
 
 	List<SecurityQuestion> getSecurityQuestions(String userId);
 
 	List<SecurityQuestion> getSecurityQuestionsByEmail(String email);
 
+	@Cacheable("client")
 	Client getClientByEmail(String email);
 }

@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.logging.LogFactory;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -854,5 +855,69 @@ public class ClientBeanTest {
 		for (SecurityQuestion question : questions) {
 			assertNull(question.getAnswer());
 		}
+	}
+	
+	@Test
+	public void testClientCaching() {
+		Domain domain1 = new Domain(0L, "domain1", "http://www.quik-j.com",
+				null);
+		clientBean.createDomain(domain1);
+
+		Domain domain2 = new Domain(0L, "domain2", "http://www.cafesip.org",
+				null);
+		clientBean.createDomain(domain2);
+
+		Client client = new Client();
+		client.setUserId("user1");
+		client.setFirstName("Test");
+		client.setLastName("User");
+		client.setEmail("user1@quik-j.com");
+		client.setAdditionalInfo("Additional Information");
+		client.setPassword("A1b2c3d4");
+		client.setPhone1("9195551212");
+		client.setPhone2("8005551212");
+		client.setStreetAddress1("1000 Wall Street");
+		client.setStreetAddress2("Suite 202");
+		client.setCity("New York");
+		client.setState("New York");
+		client.setCountry("USA");
+		client.setPostalCode("12345-7890");
+
+		List<Role> roles = new ArrayList<Role>();
+		roles.add(new Role(0L, "ADMIN"));
+		roles.add(new Role(0L, "MANAGER"));
+
+		client.getDomains().add(domain1);
+		for (Role role : roles) {
+			domain1.getRoles().add(role);
+		}
+		client.getDomains().add(domain2);
+		for (Role role : roles) {
+			domain2.getRoles().add(role);
+		}
+
+		client.setDefaultDomainName(domain1.getName());
+
+		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q1", "a1"));
+		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q2", "a2"));
+		client.getSecurityQuestions().add(new SecurityQuestion(0L, "q3", "a3"));
+
+		clientBean.createClient(client);
+
+		LogFactory.getLog(getClass()).info("Getting client by user id first time");
+		Client clientDb = clientBean.getClientByUserId("user1");
+		assertNotNull(clientDb);
+		
+		LogFactory.getLog(getClass()).info("Getting client by user id second time");
+		clientDb = clientBean.getClientByUserId("user1");
+		assertNotNull(clientDb);
+		
+		clientBean.deleteClient(clientDb.getId());
+		try {
+			clientDb = clientBean.getClientByUserId("user1");
+			fail();
+		} catch (MiddlewareCoreException e) {
+			// Expected
+		}		
 	}
 }
