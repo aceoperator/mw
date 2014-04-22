@@ -161,7 +161,7 @@
 
 	<bean id="cacheManager"
 		class="org.infinispan.spring.provider.SpringEmbeddedCacheManagerFactoryBean">
-		<property name="configurationFileLocation" value="classpath:/META-INF/infinispan.xml" />
+		<property name="configurationFileLocation" value="file:${user.home}/.mw/conf/infinispan.xml" />
 	</bean>
 
 	<bean class="org.mybatis.spring.mapper.MapperFactoryBean" id="clientDao">
