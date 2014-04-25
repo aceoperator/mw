@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.quikj.mw.core.business.CaptchaBean;
 import com.quikj.mw.core.business.ClientBean;
@@ -69,7 +70,7 @@ public class ClientRestServiceImpl implements ClientService {
 
 	@Override
 	@RequestMapping(value = "/password", method = RequestMethod.PUT)
-	public Success changePassword(
+	public @ResponseBody Success changePassword(
 			@RequestParam(value = "oldPassword", required = true) String oldPassword,
 			@RequestParam(value = "newPassword", required = true) String newPassword) {
 		clientBean.changeOwnPassword(MiddlewareUtil.getUserId(), oldPassword,
@@ -79,34 +80,34 @@ public class ClientRestServiceImpl implements ClientService {
 
 	@Override
 	@RequestMapping(value = "/{clientId}", method = RequestMethod.DELETE)
-	public Success deleteClient(@PathVariable long clientId) {
+	public @ResponseBody Success deleteClient(@PathVariable long clientId) {
 		clientBean.deleteClient(clientId);
 		return new Success();
 	}
 
 	@Override
 	@RequestMapping(value = "", method = RequestMethod.POST)
-	public Success createClient(@RequestBody Client client) {
+	public @ResponseBody Success createClient(@RequestBody Client client) {
 		clientBean.createClient(client);
 		return new Success();
 	}
 
 	@Override
 	@RequestMapping(value = "/{userId}", method = RequestMethod.GET)
-	public Client getClientByUserId(@PathVariable String userId) {
+	public @ResponseBody  Client getClientByUserId(@PathVariable String userId) {
 		return clientBean.getClientByUserId(userId);
 	}
 
 	@Override
 	@RequestMapping(value = "", method = RequestMethod.PUT)
-	public Success modifyClient(@RequestBody Client client) {
+	public @ResponseBody  Success modifyClient(@RequestBody Client client) {
 		clientBean.updateClient(client);
 		return new Success();
 	}
 
 	@Override
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public Success login(
+	public @ResponseBody Success login(
 			@RequestParam(value = "identifier", required = true) String identifier,
 			@RequestParam(value = "password", required = true) String password) {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
@@ -119,7 +120,7 @@ public class ClientRestServiceImpl implements ClientService {
 
 	@Override
 	@RequestMapping(value = "/login", method = RequestMethod.DELETE)
-	public Success logout() {
+	public @ResponseBody  Success logout() {
 		if (SecurityContextHolder.getContext().getAuthentication() == null) {
 			throw new MiddlewareServiceException("Not logged in");
 		}
@@ -130,7 +131,7 @@ public class ClientRestServiceImpl implements ClientService {
 
 	@Override
 	@RequestMapping(value = "/password", method = RequestMethod.POST)
-	public Success resetPassword(
+	public @ResponseBody Success resetPassword(
 			HttpServletRequest request,
 			@RequestParam(value = "identifier", required = true) String identifier,
 			@RequestParam(value = "captcha", required = false) String captcha,
@@ -151,7 +152,7 @@ public class ClientRestServiceImpl implements ClientService {
 
 	@Override
 	@RequestMapping(value = "/questions", method = RequestMethod.GET)
-	public SecurityQuestions getSecurityQuestions(
+	public @ResponseBody SecurityQuestions getSecurityQuestions(
 			HttpServletRequest request,
 			@RequestParam(value = "identifier", required = true) String identifier,
 			@RequestParam(value = "captcha", required = false) String captcha) {
@@ -187,7 +188,7 @@ public class ClientRestServiceImpl implements ClientService {
 
 	@Override
 	@RequestMapping(value = "/questions", method = RequestMethod.PUT)
-	public Success resetSecurityQuestions(
+	public @ResponseBody Success resetSecurityQuestions(
 			@RequestBody SecurityQuestions questions) {
 		clientBean.resetSecurityQuestions(MiddlewareUtil.getUserId(),
 				questions.getSecurityQuestions());
@@ -196,7 +197,7 @@ public class ClientRestServiceImpl implements ClientService {
 
 	@Override
 	@RequestMapping(value = "/profile", method = RequestMethod.PUT)
-	public Success updateProfile(@RequestBody Client client) {
+	public @ResponseBody Success updateProfile(@RequestBody Client client) {
 		client.setUserId(MiddlewareUtil.getUserId());
 		clientBean.updateProfile(client);
 		return new Success();
@@ -204,7 +205,7 @@ public class ClientRestServiceImpl implements ClientService {
 
 	@Override
 	@RequestMapping(value = "/profile", method = RequestMethod.GET)
-	public Client getProfile() {
+	public @ResponseBody Client getProfile() {
 		return clientBean.getProfileByUserId(MiddlewareUtil.getUserId());
 	}
 }

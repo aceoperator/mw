@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.apache.commons.logging.LogFactory;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -71,6 +72,11 @@ public class ClientBeanTest {
 		smtpServer.stop();
 	}
 
+	@Before
+	public void before() {
+		clientBean.resetCache();
+	}
+	
 	@Test
 	public void testDomainOperations() {
 		Domain domain = new Domain(0L, "domain1", "http://www.quik-j.com", null);

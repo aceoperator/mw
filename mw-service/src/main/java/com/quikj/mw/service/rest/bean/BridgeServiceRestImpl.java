@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.quikj.mw.activiti.value.ProcessAttributes;
 import com.quikj.mw.activiti.value.ProcessProperty;
@@ -35,7 +36,7 @@ public class BridgeServiceRestImpl implements BridgeService {
 
 	@Override
 	@RequestMapping(value = "", method = RequestMethod.POST)
-	public ProcessAttributes invokeService(
+	public @ResponseBody ProcessAttributes invokeService(
 			@RequestBody ProcessAttributes attributes) {
 		Properties inputProperties = new Properties();
 

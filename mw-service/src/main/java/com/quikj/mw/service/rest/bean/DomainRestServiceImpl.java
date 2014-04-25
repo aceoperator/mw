@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.quikj.mw.core.business.ClientBean;
 import com.quikj.mw.core.value.Domain;
@@ -32,27 +33,27 @@ public class DomainRestServiceImpl implements DomainService {
 
 	@Override
 	@RequestMapping(value = "/{domainId}", method = RequestMethod.DELETE)
-	public Success deleteDomain(@PathVariable long domainId) {
+	public @ResponseBody Success deleteDomain(@PathVariable long domainId) {
 		clientBean.deleteDomain(domainId);
 		return new Success();
 	}
 
 	@Override
 	@RequestMapping(value = "", method = RequestMethod.POST)
-	public Success createDomain(@RequestBody Domain domain) {
+	public @ResponseBody Success createDomain(@RequestBody Domain domain) {
 		clientBean.createDomain(domain);
 		return new Success();
 	}
 
 	@Override
 	@RequestMapping(value = "/{domainName}", method = RequestMethod.GET)
-	public Domain getDomainById(@PathVariable String domainName) {
+	public @ResponseBody Domain getDomainById(@PathVariable String domainName) {
 		return clientBean.getDomainByName(domainName);
 	}
 
 	@Override
 	@RequestMapping(value = "", method = RequestMethod.PUT)
-	public Success modifyDomain(@RequestBody Domain domain) {
+	public @ResponseBody Success modifyDomain(@RequestBody Domain domain) {
 		clientBean.updateDomain(domain);
 		return new Success();
 	}

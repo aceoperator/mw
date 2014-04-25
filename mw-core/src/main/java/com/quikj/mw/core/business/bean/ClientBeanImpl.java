@@ -182,8 +182,8 @@ public class ClientBeanImpl implements ClientBean {
 			validateAndSetDefaultDomainId(client);
 		}
 
-		Client oldClient = getClientById(client.getId());
-		if (oldClient == null) {
+		Client dbClient = getClientById(client.getId());
+		if (dbClient == null) {
 			throw new MiddlewareCoreException("The client was not found");
 		}
 
@@ -192,11 +192,20 @@ public class ClientBeanImpl implements ClientBean {
 			throw new MiddlewareCoreException("Error updating client");
 		}
 
-		List<Domain> unchangedDomains = new ArrayList<>(oldClient.getDomains());
+		List<Domain> unchangedDomains = new ArrayList<>(dbClient.getDomains());
 
-		// First, find the new domains that were found in this request that were
+		// First, remove the domains that were in the database that are no longer
+		// in this request
+		List<Domain> removedDomains = compareDomains(client.getDomains(),
+				dbClient.getDomains());
+		for (Domain domain : removedDomains) {
+			clientDao.deleteClientDomainMap(client.getId(), domain.getName());
+			unchangedDomains.remove(domain);
+		}
+		
+		// Next, find the new domains that were found in this request that were
 		// not present in the older definition in the database
-		List<Domain> newDomains = compareDomains(oldClient.getDomains(),
+		List<Domain> newDomains = compareDomains(dbClient.getDomains(),
 				client.getDomains());
 		for (Domain domain : newDomains) {
 			ClientDomainMap map = new ClientDomainMap(client.getId(),
@@ -210,32 +219,23 @@ public class ClientBeanImpl implements ClientBean {
 			}
 		}
 
-		// Next, remove the domains that were in the database that are no longer
-		// in this request
-		List<Domain> removedDomains = compareDomains(client.getDomains(),
-				oldClient.getDomains());
-		for (Domain domain : removedDomains) {
-			clientDao.deleteClientDomainMap(client.getId(), domain.getName());
-			unchangedDomains.remove(domain);
-		}
-
 		// Finally, manage the client-domain-role map as needed for the entries
 		// that were neither added nor removed
 		for (Domain domain : unchangedDomains) {
 			Domain newDomain = findDomain(client.getDomains(), domain.getName());
 
+			List<Role> removedRoles = compareRoles(newDomain.getRoles(),
+					domain.getRoles());
+			for (Role role : removedRoles) {
+				clientDao.deleteClientDomainRoleMap(client.getId(),
+						domain.getId(), role.getName());
+			}
+			
 			List<Role> newRoles = compareRoles(domain.getRoles(),
 					newDomain.getRoles());
 
 			for (Role role : newRoles) {
 				clientDao.createClientDomainRoleMap2(client.getId(),
-						domain.getId(), role.getName());
-			}
-
-			List<Role> removedRoles = compareRoles(newDomain.getRoles(),
-					domain.getRoles());
-			for (Role role : removedRoles) {
-				clientDao.deleteClientDomainRoleMap(client.getId(),
 						domain.getId(), role.getName());
 			}
 		}
@@ -655,5 +655,10 @@ public class ClientBeanImpl implements ClientBean {
 	@Override
 	public Client getProfileByEmail(String email) {
 		return clientDao.getClientByEmail(email);
+	}
+
+	@Override
+	public void resetCache() {
+		// Do nothing. The annotation on the interface for this method does the trick.
 	}
 }
