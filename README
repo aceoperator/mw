@@ -6,4 +6,9 @@ For other topics and documentation - https://github.com/aceoperator/mw/wiki/_pag
 For the source code - https://github.com/aceoperator/mw
 For issues - https://github.com/aceoperator/mw/issues.
 
+The source code for this project is licensed as per the terms and conditions specified by the Apache Software Foundation
+License 2.0 - http://www.apache.org/licenses/LICENSE-2.0.html . Please make sure that you comply with the terms and 
+conditions. When you build this project, it will download additional modules. Make sure that you comply with
+the terms and conditions of these modules as well.
+
 If you have any questions, send an email to info AT quik-j.com.
